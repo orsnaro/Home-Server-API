@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h2>{% block title %}Home{% endblock title %}</h2>
+{% endblock header %}
+
+{% block content %}
+  <p>
+    Learn more about this project by visiting the <a href="{{ url_for('pages.about') }}">About page</a>.
+  </p>
+  <a href='{{ url_for('pages.about') }}'>  <h1 style='color:purple'>  TO ABOUT📑! </h1> </a>
+{% endblock content %}
