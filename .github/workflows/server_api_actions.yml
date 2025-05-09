@@ -33,7 +33,7 @@ jobs:
       #     install -m 600 -D /dev/null ~/.ssh/id_rsa
       #     echo "${{ secrets.HOME_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
       #     ssh-keyscan -H ${{ secrets.HOST_DNS }} > ~/.ssh/known_hosts
-      - name: Deploy to Home Server discord bot server
+      - name: Deploy to Home Server
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.HOME_SERVER_SSH_KEY }}
@@ -45,8 +45,8 @@ jobs:
         with:
           host: ${{ secrets.HOST_DNS }}
           username: ${{ secrets.USERNAME }}
-          #password: ${{ secrets.HOME_SERVER_SSH_KEY }}
-          key: ${{ secrets.HOME_SERVER_SSH_KEY }}
+          password: ${{ secrets.HOME_SERVER_SSH_KEY }}
+          #key: ${{ secrets.HOME_SERVER_SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 5m
         # script_stop: true
