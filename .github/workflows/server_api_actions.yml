@@ -53,5 +53,6 @@ jobs:
           script: | 
             # set -e  # Exit immediately on error
             echo "Starting API Update..."
-            pkill -f gunicorn   ||  pkill -f gunicorn || echo "No gunicorn process found."
+            # pkill -f gunicorn   ||  pkill -f gunicorn || echo "No gunicorn process found."
+            echo "Script will have auto reloading later!"
             echo "Done updating Home Server API🟢"
