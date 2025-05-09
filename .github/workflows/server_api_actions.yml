@@ -51,7 +51,7 @@ jobs:
           command_timeout: 5m
         # script_stop: true
           script: | 
-            set -e  # Exit immediately on error
+            # set -e  # Exit immediately on error
             echo "Starting API Update..."
-            # pkill -f gunicorn   
+            pkill -f gunicorn   
             echo "Done updating Home Server API🟢"
