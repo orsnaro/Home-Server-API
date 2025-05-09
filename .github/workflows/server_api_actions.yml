@@ -45,8 +45,8 @@ jobs:
         with:
           host: ${{ secrets.HOST_DNS }}
           username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.HOME_SERVER_SSH_KEY }}
-          #key: ${{ secrets.HOME_SERVER_SSH_KEY }}
+          # password: ${{ secrets.HOME_SERVER_SSH_KEY }}
+          key: ${{ secrets.HOME_SERVER_SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 5m
         # script_stop: true
