@@ -53,5 +53,5 @@ jobs:
           script: | 
             set -e  # Exit immediately on error
             echo "Starting API Update..."
-            sudo systemctl restart API_home_server
+            pkill -f gunicorn   
             echo "Done updating Home Server API🟢"
