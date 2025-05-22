@@ -6,18 +6,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/77698890?v=4">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet">
   <style>
     :root {
       --main-bg: #f7f7fa;
       --main-fg: #222;
-      --header-bg: rgba(106,27,154,0.85);
-      --nav-bg: rgba(237,231,246,0.85);
-      --main-card-bg: rgba(255,255,255,0.85);
+      --header-bg: rgba(106, 27, 154, 0.85);
+      --nav-bg: rgba(237, 231, 246, 0.85);
+      --main-card-bg: rgba(255, 255, 255, 0.85);
       --glass-blur: 16px;
       --accent: #6a1b9a;
       --accent2: #4527a0;
     }
+
     body {
       font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: var(--main-bg);
@@ -26,27 +28,36 @@
       color: var(--main-fg);
       transition: background 0.3s, color 0.3s;
     }
+
     body.dark {
       --main-bg: #181824;
       --main-fg: #f7f7fa;
-      --header-bg: rgba(40,20,60,0.85);
-      --nav-bg: rgba(50,40,80,0.85);
-      --main-card-bg: rgba(30,30,40,0.85);
+      --header-bg: rgba(40, 20, 60, 0.85);
+      --nav-bg: rgba(50, 40, 80, 0.85);
+      --main-card-bg: rgba(30, 30, 40, 0.85);
     }
+
     #threejs-bg {
-      position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-2;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
     }
+
     header {
       background: var(--header-bg);
       color: #fff;
       padding: 1rem 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       border-radius: 0 0 18px 18px;
       backdrop-filter: blur(var(--glass-blur));
       -webkit-backdrop-filter: blur(var(--glass-blur));
       margin-bottom: 0.5rem;
       transition: background 0.3s;
     }
+
     nav {
       margin: 0 0 1rem 0;
       padding: 0.5rem 2rem;
@@ -56,36 +67,43 @@
       border-radius: 12px;
       backdrop-filter: blur(var(--glass-blur));
       -webkit-backdrop-filter: blur(var(--glass-blur));
-      box-shadow: 0 2px 8px rgba(106,27,154,0.04);
+      box-shadow: 0 2px 8px rgba(106, 27, 154, 0.04);
       transition: background 0.3s;
     }
+
     nav a {
       color: var(--accent);
       text-decoration: none;
       font-weight: 500;
       transition: color 0.2s;
     }
+
     nav a:hover {
       color: var(--accent2);
       text-decoration: underline;
     }
+
     main {
       max-width: 700px;
       margin: 2rem auto;
       background: var(--main-card-bg);
       border-radius: 18px;
-      box-shadow: 0 2px 12px rgba(106,27,154,0.07);
+      box-shadow: 0 2px 12px rgba(106, 27, 154, 0.07);
       padding: 2rem;
       backdrop-filter: blur(var(--glass-blur));
       -webkit-backdrop-filter: blur(var(--glass-blur));
       transition: background 0.3s;
     }
-    h1, h2 {
+
+    h1,
+    h2 {
       margin-top: 0;
     }
+
     .center {
       text-align: center;
     }
+
     .dark-toggle {
       position: absolute;
       top: 1.2rem;
@@ -101,133 +119,187 @@
       justify-content: center;
       font-size: 1.3rem;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(106,27,154,0.10);
+      box-shadow: 0 2px 8px rgba(106, 27, 154, 0.10);
       transition: background 0.3s;
     }
+
     .logo-spin {
-      animation: logoSpin 1.2s cubic-bezier(.68,-0.55,.27,1.55) 1;
+      animation: logoSpin 1.2s cubic-bezier(.68, -0.55, .27, 1.55) 1;
       will-change: transform;
     }
+
     @keyframes logoSpin {
-      0% { transform: rotate(-360deg) scale(0.7); opacity: 0; }
-      60% { transform: rotate(20deg) scale(1.1); opacity: 1; }
-      80% { transform: rotate(-8deg) scale(0.95); }
-      100% { transform: rotate(0deg) scale(1); }
+      0% {
+        transform: rotate(-360deg) scale(0.7);
+        opacity: 0;
+      }
+
+      60% {
+        transform: rotate(20deg) scale(1.1);
+        opacity: 1;
+      }
+
+      80% {
+        transform: rotate(-8deg) scale(0.95);
+      }
+
+      100% {
+        transform: rotate(0deg) scale(1);
+      }
     }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    h1, .main-title {
+
+    h1,
+    .main-title {
       font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
       font-weight: 900;
       letter-spacing: 1.5px;
       font-size: 2.3rem;
       color: #6a1b9a;
       margin: 0;
-      animation: fadeUp 1.2s cubic-bezier(.68,-0.55,.27,1.55);
+      animation: fadeUp 1.2s cubic-bezier(.68, -0.55, .27, 1.55);
       /* text-shadow: 0 2px 12px #ede7f6; */
     }
-    h2, .subtitle {
+
+    h2,
+    .subtitle {
       font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
       font-weight: 700;
       color: #4527a0;
       font-size: 1.5rem;
       margin-bottom: 1.5em;
       letter-spacing: 1px;
-      animation: slideIn 1.1s cubic-bezier(.68,-0.55,.27,1.55);
+      animation: slideIn 1.1s cubic-bezier(.68, -0.55, .27, 1.55);
     }
+
     @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(30px) scale(0.95); }
-      60% { opacity: 1; transform: translateY(-8px) scale(1.04); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
+      0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+
+      60% {
+        opacity: 1;
+        transform: translateY(-8px) scale(1.04);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
+
     @keyframes slideIn {
-      0% { opacity: 0; transform: translateX(-40px); }
-      80% { opacity: 1; transform: translateX(8px); }
-      100% { opacity: 1; transform: translateX(0); }
+      0% {
+        opacity: 0;
+        transform: translateX(-40px);
+      }
+
+      80% {
+        opacity: 1;
+        transform: translateX(8px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
   </style>
 </head>
 
 <body>
-<div id="threejs-bg"></div>
-<button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
-<header>
-  <div style="display:flex;align-items:center;gap:1.2em;justify-content:center;padding-top:0.5em;">
-   <a href="{{ url_for('pages.home') }}">  <img src="https://avatars.githubusercontent.com/u/77698890?v=4" alt="Omar Rashad" class="logo-spin" style="width:54px;height:54px;border-radius:50%;box-shadow:0 2px 8px rgba(106,27,154,0.12);"> </a>
-    <h1 style="font-size:2.1rem;color:#6a1b9a;margin:0;animation:fadeIn 1.2s;" class="main-title">Omar's Home Server Dashboard</h1>
-  </div>
-</header>
-<nav>
-  <a href="{{ url_for('pages.home') }}">Home</a>
-  <a href="{{ url_for('pages.about') }}">About</a>
-  <a href="{{ url_for('pages.wizy_status') }}">Wizy Status</a>
-  <a href="{{ url_for('pages.api_info') }}">API Info</a>
-  <a href="{{ url_for('pages.server_status') }}">Server Status</a>
-</nav>
-<main>
-  {% block content %}<p>No messages.</p>{% endblock content %}
-</main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-  // 3D JS magic (Three.js) background for all pages
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.getElementById('threejs-bg').appendChild(renderer.domElement);
-  camera.position.z = 5;
-  const cubes = [];
-  for (let i = 0; i < 12; i++) {
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshStandardMaterial({ color: 0x6a1b9a, metalness: 0.5, roughness: 0.5 });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.x = (Math.random() - 0.5) * 8;
-    cube.position.y = (Math.random() - 0.5) * 6;
-    cube.position.z = (Math.random() - 0.5) * 4;
-    cubes.push(cube);
-    scene.add(cube);
-  }
-  const light = new THREE.PointLight(0xffffff, 1, 100);
-  light.position.set(0, 0, 10);
-  scene.add(light);
-  function animate() {
-    requestAnimationFrame(animate);
-    cubes.forEach((cube, i) => {
-      cube.rotation.x += 0.01 + i * 0.001;
-      cube.rotation.y += 0.01 + i * 0.001;
-    });
-    renderer.render(scene, camera);
-  }
-  animate();
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+  <div id="threejs-bg"></div>
+  <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
+  <header>
+    <div style="display:flex;align-items:center;gap:1.2em;justify-content:center;padding-top:0.5em;">
+      <a href="{{ url_for('pages.home') }}"> <img src="https://avatars.githubusercontent.com/u/77698890?v=4"
+          alt="Omar Rashad" class="logo-spin"
+          style="width:54px;height:54px;border-radius:50%;box-shadow:0 2px 8px rgba(106,27,154,0.12);"> </a>
+      <h1 style="font-size:2.1rem;color:#6a1b9a;margin:0;animation:fadeIn 1.2s;" class="main-title">Omar's Home Server
+        Dashboard</h1>
+    </div>
+  </header>
+  <nav>
+    <a href="{{ url_for('pages.home') }}">Home</a>
+    <a href="{{ url_for('pages.about') }}">About</a>
+    <a href="{{ url_for('pages.wizy_status') }}">Wizy Status</a>
+    <a href="{{ url_for('pages.api_info') }}">API Info</a>
+    <a href="{{ url_for('pages.server_status') }}">Server Status</a>
+  </nav>
+  <main>
+    {% block content %}<p>No messages.</p>{% endblock content %}
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // 3D JS magic (Three.js) background for all pages
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  // Dark mode toggle
-  const darkToggle = document.getElementById('darkToggle');
-  function setDarkMode(on) {
-    if (on) {
-      document.body.classList.add('dark');
-      darkToggle.textContent = '☀️';
-      localStorage.setItem('darkMode', '1');
-    } else {
-      document.body.classList.remove('dark');
-      darkToggle.textContent = '🌙';
-      localStorage.setItem('darkMode', '0');
+    document.getElementById('threejs-bg').appendChild(renderer.domElement);
+    camera.position.z = 5;
+    const cubes = [];
+    for (let i = 0; i < 12; i++) {
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshStandardMaterial({ color: 0x6a1b9a, metalness: 0.5, roughness: 0.5 });
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.x = (Math.random() - 0.5) * 8;
+      cube.position.y = (Math.random() - 0.5) * 6;
+      cube.position.z = (Math.random() - 0.5) * 4;
+      cubes.push(cube);
+      scene.add(cube);
     }
-  }
-  darkToggle.onclick = () => setDarkMode(!document.body.classList.contains('dark'));
-  // Load preference: default to dark mode unless explicitly set to light
-  if (localStorage.getItem('darkMode') === '0') {
-    setDarkMode(false);
-  } else {
-    setDarkMode(true);
-  }
-</script>
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(0, 0, 10);
+    scene.add(light);
+    function animate() {
+      requestAnimationFrame(animate);
+      cubes.forEach((cube, i) => {
+        cube.rotation.x += 0.01 + i * 0.001;
+        cube.rotation.y += 0.01 + i * 0.001;
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Dark mode toggle
+    const darkToggle = document.getElementById('darkToggle');
+    function setDarkMode(on) {
+      if (on) {
+        document.body.classList.add('dark');
+        darkToggle.textContent = '☀️';
+        localStorage.setItem('darkMode', '1');
+      } else {
+        document.body.classList.remove('dark');
+        darkToggle.textContent = '🌙';
+        localStorage.setItem('darkMode', '0');
+      }
+    }
+    darkToggle.onclick = () => setDarkMode(!document.body.classList.contains('dark'));
+    // Load preference: default to dark mode unless explicitly set to light
+    if (localStorage.getItem('darkMode') === '0') {
+      setDarkMode(false);
+    } else {
+      setDarkMode(true);
+    }
+  </script>
 </body>
 
 </html>
