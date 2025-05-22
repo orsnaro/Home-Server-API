@@ -1,0 +1,57 @@
+name: push-home-bot-server
+
+# Trigger deployment only on push to production-Home-Server branch
+on:
+  push:
+    branches:
+      - Production-Home-Ubuntu
+  workflow_dispatch:
+jobs:
+  deploy:
+    name: Deploy new API updates to ORS Home Server on every Production-Home-Ubuntu branch push
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.11.8 # with a build matrix, you can specify a list of python versions to deploy with
+        cache: ['pip']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install python project dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      # - name: install ssh keys
+      # this a manual ssh install step if the auto one 'Deploy to Home Server discord bot server' stopped working!
+      # this partt of this article:https://www.programonaut.com/how-to-deploy-a-git-repository-to-a-server-using-github-actions/
+      #   run: |
+      #     install -m 600 -D /dev/null ~/.ssh/id_rsa
+      #     echo "${{ secrets.HOME_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+      #     ssh-keyscan -H ${{ secrets.HOST_DNS }} > ~/.ssh/known_hosts
+      - name: Deploy to Home Server discord bot server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.HOME_SERVER_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.HOST_DNS }}
+          REMOTE_USER: ${{ secrets.USERNAME }}
+          TARGET: ${{ secrets.TARGET_DIR }}
+      - name: Executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST_DNS }}
+          username: ${{ secrets.USERNAME }}
+          #password: ${{ secrets.HOME_SERVER_SSH_KEY }}
+          key: ${{ secrets.HOME_SERVER_SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          command_timeout: 5m
+        # script_stop: true
+          script: | 
+            set -e  # Exit immediately on error
+            echo "Starting API Update..."
+            sudo systemctl restart API_home_server
+            echo "Done updating Home Server API🟢"
