@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Server Status{% endblock title %}
+{% block content %}
+<div class="center">
+  <h2 style="color:#6a1b9a;font-size:2rem;">Server Status</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:2em;justify-content:center;margin:2em 0;">
+    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
+      <div style="font-size:2.2em;">🖥️</div>
+      <div style="font-size:1.1em;">CPU Usage</div>
+      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ stats.cpu_percent }}%</div>
+    </div>
+    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
+      <div style="font-size:2.2em;">💾</div>
+      <div style="font-size:1.1em;">RAM Usage</div>
+      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ stats.memory.percent }}%</div>
+      <div style="font-size:0.95em;color:#555;">({{ (stats.memory.used // (1024*1024)) }}MB / {{ (stats.memory.total // (1024*1024)) }}MB)</div>
+    </div>
+    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
+      <div style="font-size:2.2em;">⏱️</div>
+      <div style="font-size:1.1em;">Uptime</div>
+      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ (stats.uptime // 3600) }}h {{ ((stats.uptime // 60) % 60) }}m</div>
+    </div>
+    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
+      <div style="font-size:2.2em;">👤</div>
+      <div style="font-size:1.1em;">Users</div>
+      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ stats.users|length }}</div>
+    </div>
+    {% if stats.loadavg %}
+    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
+      <div style="font-size:2.2em;">📊</div>
+      <div style="font-size:1.1em;">Load Avg</div>
+      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ stats.loadavg[0] }}, {{ stats.loadavg[1] }}, {{ stats.loadavg[2] }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock content %} 

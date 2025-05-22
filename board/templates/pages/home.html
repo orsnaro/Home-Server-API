@@ -1,12 +1,114 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h2>{% block title %}Home{% endblock title %}</h2>
-{% endblock header %}
+{% block title %}Home{% endblock title %}
 
 {% block content %}
-  <p>
-    Learn more about this project by visiting the <a href="{{ url_for('pages.about') }}">About page</a>.
-  </p>
-  <a href='{{ url_for('pages.about') }}'>  <h1 style='color:purple'>  TO ABOUT📑! </h1> </a>
+  <div class="center">
+    <h2>Welcome to Omar's Home Server</h2>
+    <p>
+      Want to dive deeper? Visit the <a href="{{ url_for('pages.about') }}">About page</a> for project insights.
+    </p>
+    <a href='{{ url_for('pages.about') }}' style="display:inline-block;margin-top:1.5rem;padding:0.7rem 2rem;background:#6a1b9a;color:#fff;border-radius:6px;text-decoration:none;font-size:1.2rem;font-weight:500;box-shadow:0 2px 8px rgba(106,27,154,0.08);transition:background 0.2s;">TO ABOUT 📑!</a>
+
+    <div style="margin-top:2.5rem;display:flex;justify-content:center;">
+      <div style="background:#ede7f6;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);padding:2rem 2.5rem;max-width:420px;text-align:left;">
+        <h2 style="color:#6a1b9a;margin-top:0;">About the Developer</h2>
+        <div style="background:var(--main-card-bg);color:var(--main-fg);padding:1em 1.2em;border-radius:8px;margin-bottom:1em;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);box-shadow:0 1px 6px rgba(106,27,154,0.07);transition:background 0.3s,color 0.3s;">
+          Hi, I'm <b>Omar Rashad</b> — a Software Developer & Computer Engineer passionate about coding and building cool projects!<br>
+          <span style="font-size:0.95em;color:var(--main-fg);">Graduation year student @ Kafr el-Sheikh University, Egypt.</span>
+        </div>
+        <div class="contact-badges" style="display:flex;flex-wrap:wrap;gap:0.7em;margin-bottom:1.2em;justify-content:center;">
+          <a href="https://github.com/orsnaro" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
+          <a href="https://discord.com/invite/Y23B7R3FPq" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/Discord%20-%20%23694D99?style=flat-square&logo=discord" alt="Discord"></a>
+          <a href="https://www.linkedin.com/in/omar-rs" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/LinkedIn%20-%20%233d85c6?style=flat-square&logo=linkedin" alt="LinkedIn"></a>
+          <a href="https://mail.google.com/mail/u/0/?fs=1&tf=cm&source=mailto&to=omar1xd@gmail.com" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/-Gmail-D14836?style=flat-square&logo=Gmail&logoColor=white" alt="Gmail"></a>
+          <a href="https://www.youtube.com/channel/UC1_2q6N_ulxYp-Nby0sFUaA" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/YouTube-red?style=flat-square&&logo=youtube&logoColor=red&color=white" alt="YouTube"></a>
+          <a href="https://www.codechef.com/users/omarrs" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/CODECHEF-red?style=flat-square&logo=codechef&logoColor=68391b&color=white" alt="CodeChef"></a>
+          <a href="https://vjudge.net/user/orsnarol" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/Vjudge-red?style=flat-square&logo=circle&logoColor=yellow&color=white" alt="Vjudge"></a>
+          <a href="https://gist.github.com/orsnaro" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/GitHub%20Gist-black?style=flat-square&logo=gitbook&logoColor=white" alt="GitHub Gist"></a>
+          <a href="https://www.hackerrank.com/Omar1xd" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/HackerRank-red?style=flat-square&logo=hackerrank&logoColor=14ab4a&color=000000" alt="HackerRank"></a>
+          <a href="https://codeforces.com/profile/omarrs" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/CodeForces-red?style=flat-square&logo=codeforces&logoColor=red&color=black" alt="Codeforces"></a>
+          <a href="https://leetcode.com/u/omar_rs/" target="_blank" class="badge-link"><img src="https://img.shields.io/badge/LeetCode-FFA116?style=flat-square&logo=leetcode&logoColor=white" alt="LeetCode"></a>
+        </div>
+        <style>
+          .contact-badges .badge-link {
+            display: inline-block;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(106,27,154,0.10);
+            transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+            filter: grayscale(0.15) brightness(0.98);
+            background: rgba(255,255,255,0.15);
+          }
+          .contact-badges .badge-link:hover {
+            transform: translateY(-4px) scale(1.07) rotate(-2deg);
+            box-shadow: 0 6px 18px rgba(106,27,154,0.18);
+            filter: grayscale(0) brightness(1.08) drop-shadow(0 0 6px #6a1b9a33);
+            background: rgba(255,255,255,0.35);
+          }
+          .contact-badges img {
+            display: block;
+            height: 32px;
+            border-radius: 0;
+            margin: 0;
+          }
+        </style>
+        <div style="margin-top:1.5em;">
+          <h3 style="color:#6a1b9a;margin-bottom:0.5em;">Languages & Tools</h3>
+          <div style="display:flex;flex-direction:column;gap:1.2em;">
+            <div>
+              <h4 style="margin:0 0 0.3em 0;color:#4527a0;font-size:1.08em;">Languages</h4>
+              <div style="display:flex;flex-wrap:wrap;gap:0.7em;">
+                <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" alt="Python" style="height:26px;">
+                <img src="https://img.shields.io/badge/C++-00599C?style=flat&logo=c%2B%2B&logoColor=white" alt="C++" style="height:26px;">
+                <img src="https://img.shields.io/badge/C%23-239120?style=flat&logo=c-sharp&logoColor=white" alt="C#" style="height:26px;">
+                <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black" alt="JavaScript" style="height:26px;">
+                <img src="https://img.shields.io/badge/PHP-777BB4?style=flat&logo=php&logoColor=white" alt="PHP" style="height:26px;">
+                <img src="https://img.shields.io/badge/Bash-4EAA25?style=flat&logo=gnubash&logoColor=white" alt="Bash" style="height:26px;">
+                <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white" alt="HTML5" style="height:26px;">
+                <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white" alt="CSS3" style="height:26px;">
+                <img src="https://img.shields.io/badge/C-00599C?style=flat&logo=c&logoColor=white" alt="C" style="height:26px;">
+              </div>
+            </div>
+            <div>
+              <h4 style="margin:0 0 0.3em 0;color:#4527a0;font-size:1.08em;">Frameworks & Libraries</h4>
+              <div style="display:flex;flex-wrap:wrap;gap:0.7em;">
+                <img src="https://img.shields.io/badge/Flask-000000?style=flat&logo=flask&logoColor=white" alt="Flask" style="height:26px;">
+                <img src="https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI" style="height:26px;">
+                <img src="https://img.shields.io/badge/Qt-41CD52?style=flat&logo=qt&logoColor=white" alt="Qt" style="height:26px;">
+                <img src="https://img.shields.io/badge/Bootstrap-7952B3?style=flat&logo=bootstrap&logoColor=white" alt="Bootstrap" style="height:26px;">
+                <img src="https://img.shields.io/badge/OpenCV-5C3EE8?style=flat&logo=opencv&logoColor=white" alt="OpenCV" style="height:26px;">
+                <img src="https://img.shields.io/badge/Unity-000000?style=flat&logo=unity&logoColor=white" alt="Unity" style="height:26px;">
+                <img src="https://img.shields.io/badge/VR-009688?style=flat&logo=oculus&logoColor=white" alt="VR" style="height:26px;">
+              </div>
+            </div>
+            <div>
+              <h4 style="margin:0 0 0.3em 0;color:#4527a0;font-size:1.08em;">Tools & Platforms</h4>
+              <div style="display:flex;flex-wrap:wrap;gap:0.7em;">
+                <img src="https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white" alt="Git" style="height:26px;">
+                <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white" alt="GitHub" style="height:26px;">
+                <img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white" alt="Docker" style="height:26px;">
+                <img src="https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white" alt="Nginx" style="height:26px;">
+                <img src="https://img.shields.io/badge/Gunicorn-499848?style=flat&logo=gunicorn&logoColor=white" alt="Gunicorn" style="height:26px;">
+                <img src="https://img.shields.io/badge/Linux-333333?style=flat&logo=linux&logoColor=yellow" alt="Linux" style="height:26px;">
+                <img src="https://img.shields.io/badge/VS%20Code-007ACC?style=flat&logo=visualstudiocode&logoColor=white" alt="VS Code" style="height:26px;">
+                <img src="https://img.shields.io/badge/Visual%20Studio-5C2D91?style=flat&logo=visualstudio&logoColor=white" alt="Visual Studio" style="height:26px;">
+                <img src="https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=white" alt="Jupyter" style="height:26px;">
+                <img src="https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat&logo=githubactions&logoColor=white" alt="GitHub Actions" style="height:26px;">
+                <img src="https://img.shields.io/badge/Linux%20Services-232F34?style=flat&logo=linux&logoColor=white" alt="Linux Services" style="height:26px;">
+                <img src="https://img.shields.io/badge/Discord%20API-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord API" style="height:26px;">
+                <img src="https://img.shields.io/badge/REST%20API-02569B?style=flat&logo=fastapi&logoColor=white" alt="REST API" style="height:26px;">
+                <img src="https://img.shields.io/badge/WebSockets-010101?style=flat&logo=websocket&logoColor=white" alt="WebSockets" style="height:26px;">
+                <img src="https://img.shields.io/badge/Markdown-000000?style=flat&logo=markdown&logoColor=white" alt="Markdown" style="height:26px;">
+                <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white" alt="MySQL" style="height:26px;">
+                <img src="https://img.shields.io/badge/SQLite-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite" style="height:26px;">
+                <img src="https://img.shields.io/badge/Azure%20Repos-0078D7?style=flat&logo=azuredevops&logoColor=white" alt="Azure Repos" style="height:26px;">
+                <img src="https://img.shields.io/badge/Proteus-00599C?style=flat&logo=proteus&logoColor=white" alt="Proteus" style="height:26px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock content %}

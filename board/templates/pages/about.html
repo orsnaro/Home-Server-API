@@ -1,17 +1,95 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h2>{% block title %}About{% endblock title %}</h2>
-{% endblock header %}
+{% block title %}Projects Hosted on My Home Server{% endblock title %}
 
 {% block content %}
-  <center>
-    <h1 style="color:purple">WLC! to the ORS HOME SERVER! .... Visit The repos!</h1>
-    <h4><a href="https://github.com/orsnaro/Discord-Bot-Ai/tree/production-Home-Server?tab=readme-ov-file#discord-bot-project-wizard-gpteous--">Discord Bot Wizy🧙‍♂️🐋</a></h4>
-    <h4><a href="https://github.com/orsnaro/Home-Server-API/tree/Production-Home-Ubuntu">HOME SERVER API📶</a></h4>
-  
-    <h1> <a href="https://discord.gg/SHA2SFdMWq">JOIN OUR DISCORD lovely island🏝️💙 </a> </h1>
-    
-    <a href='{{ url_for('pages.home') }}'>  <h1 style='color:purple'>  BACK TO 🏠! </h1> </a>
-  </center>
-  {% endblock content %}
+  <style>
+    /* About-specific tweaks for dark mode, using .dark */
+    body.dark header, body.dark nav, body.dark main {
+      background: rgba(30,30,40,0.85) !important;
+      color: #f7f7fa !important;
+    }
+    body.dark a, body.dark h1, body.dark h2, body.dark h3, body.dark h4 {
+      color: #b39ddb !important;
+    }
+    body.dark .center, body.dark .center * {
+      color: #f7f7fa !important;
+    }
+    body.dark .badge-link img {
+      filter: brightness(1.1) grayscale(0.1) !important;
+    }
+  </style>
+  <div class="center">
+    <h1 class="main-title">Welcome to ORS HOME SERVER!</h1>
+    <h2 class="subtitle">Projects Hosted on My Home Server</h2>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1.2em;margin-bottom:2em;">
+      <a href="https://github.com/orsnaro/Discord-Bot-Ai/tree/production-Home-Server?tab=readme-ov-file#discord-bot-project-wizard-gpteous--" style="display:flex;align-items:center;gap:0.7em;padding:1em 2em;background:linear-gradient(90deg,#8e24aa,#6a1b9a);color:#fff;border-radius:10px;text-decoration:none;font-size:1.2rem;font-weight:600;box-shadow:0 2px 12px rgba(106,27,154,0.10);transition:transform 0.2s;">
+        <span style="font-size:1.5em;">🧙‍♂️🐋</span> Discord Bot Wizy
+      </a>
+      <a href="https://github.com/orsnaro/Home-Server-API/tree/Production-Home-Ubuntu" style="display:flex;align-items:center;gap:0.7em;padding:1em 2em;background:linear-gradient(90deg,#4527a0,#283593);color:#fff;border-radius:10px;text-decoration:none;font-size:1.2rem;font-weight:600;box-shadow:0 2px 12px rgba(69,39,160,0.10);transition:transform 0.2s;">
+        <span style="font-size:1.5em;">📶</span> HOME SERVER API
+      </a>
+    </div>
+    <a href="https://discord.gg/SHA2SFdMWq" target="_blank" style="display:inline-block;padding:1em 2.2em;background:linear-gradient(90deg,#7289da,#99aab5);color:#fff;border-radius:12px;text-decoration:none;font-size:1.3rem;font-weight:700;box-shadow:0 4px 16px rgba(114,137,218,0.15);margin-bottom:2em;transition:background 0.2s,transform 0.2s;letter-spacing:1px;">
+      <span style="font-size:1.5em;vertical-align:middle;">🏝️💙</span> JOIN OUR DISCORD lovely island
+    </a>
+
+
+    <div style="margin:2.5rem auto 0 auto;max-width:700px;">
+      <h2 style="color:#4527a0;margin-bottom:1em;">Other Notable Projects</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:1.5em;justify-content:center;">
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(106,27,154,0.07);padding:1.2em 1.5em;min-width:260px;max-width:320px;text-align:left;">
+          <h3 style="margin-top:0;color:#6a1b9a;"><a href="https://github.com/orsnaro/BMP-Manipulation-tool" target="_blank" style="color:#6a1b9a;text-decoration:underline;">BMP-Manipulation-tool</a></h3>
+          <p style="margin:0.5em 0 1em 0;font-size:1em;">A C++17 project for image processing and manipulation, built from scratch without external libraries. GUI with Qt (coming soon).</p>
+          <div style="display:flex;gap:0.5em;flex-wrap:wrap;">
+            <img src="https://img.shields.io/badge/C++-00599C?style=flat&logo=c%2B%2B&logoColor=white" alt="C++" style="height:22px;">
+            <img src="https://img.shields.io/badge/Qt-41CD52?style=flat&logo=qt&logoColor=white" alt="Qt" style="height:22px;">
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(106,27,154,0.07);padding:1.2em 1.5em;min-width:260px;max-width:320px;text-align:left;">
+          <h3 style="margin-top:0;color:#6a1b9a;"><a href="https://github.com/orsnaro/Smart-Parking-System" target="_blank" style="color:#6a1b9a;text-decoration:underline;">Smart-Parking-System</a></h3>
+          <p style="margin:0.5em 0 1em 0;font-size:1em;">A fully automated smart parking system (software & hardware) with a GUI, made for a digital control course.</p>
+          <div style="display:flex;gap:0.5em;flex-wrap:wrap;">
+            <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" alt="Python" style="height:22px;">
+            <img src="https://img.shields.io/badge/Qt-41CD52?style=flat&logo=qt&logoColor=white" alt="Qt" style="height:22px;">
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(106,27,154,0.07);padding:1.2em 1.5em;min-width:260px;max-width:320px;text-align:left;">
+          <h3 style="margin-top:0;color:#6a1b9a;"><a href="https://github.com/orsnaro/CDV-windows-autoenv-tool" target="_blank" style="color:#6a1b9a;text-decoration:underline;">CDV-windows-autoenv-tool</a></h3>
+          <p style="margin:0.5em 0 1em 0;font-size:1em;">A batch tool to auto-activate your Python virtual environment using the <code>cdv</code> command, just like <code>cd</code>.</p>
+          <div style="display:flex;gap:0.5em;flex-wrap:wrap;">
+            <img src="https://img.shields.io/badge/Batchfile-4B4B4B?style=flat&logo=windows&logoColor=white" alt="Batchfile" style="height:22px;">
+            <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" alt="Python" style="height:22px;">
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(106,27,154,0.07);padding:1.2em 1.5em;min-width:260px;max-width:320px;text-align:left;">
+          <h3 style="margin-top:0;color:#6a1b9a;"><a href="https://github.com/orsnaro/Discord-Bot-Ai" target="_blank" style="color:#6a1b9a;text-decoration:underline;">Discord-Bot-Ai</a></h3>
+          <p style="margin:0.5em 0 1em 0;font-size:1em;">A Discord bot with generative AI features using Python as the main project language.</p>
+          <div style="display:flex;gap:0.5em;flex-wrap:wrap;">
+            <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" alt="Python" style="height:22px;">
+            <img src="https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord" style="height:22px;">
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(106,27,154,0.07);padding:1.2em 1.5em;min-width:260px;max-width:320px;text-align:left;">
+          <h3 style="margin-top:0;color:#6a1b9a;"><a href="https://dev.azure.com/Reality-SimSuits/_git/Reality-SimSuit1" target="_blank" style="color:#6a1b9a;text-decoration:underline;">Reality-SimSuit1</a></h3>
+          <p style="margin:0.5em 0 1em 0;font-size:1em;">A VR simulation suit project for immersive reality experiences, developed with advanced hardware and software integration.</p>
+          <div style="display:flex;gap:0.5em;flex-wrap:wrap;">
+            <img src="https://img.shields.io/badge/VR-009688?style=flat&logo=oculus&logoColor=white" alt="VR" style="height:22px;">
+            <img src="https://img.shields.io/badge/C%23-239120?style=flat&logo=c-sharp&logoColor=white" alt="C#" style="height:22px;">
+            <img src="https://img.shields.io/badge/Unity-000000?style=flat&logo=unity&logoColor=white" alt="Unity" style="height:22px;">
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(106,27,154,0.07);padding:1.2em 1.5em;min-width:260px;max-width:320px;text-align:left;">
+          <h3 style="margin-top:0;color:#6a1b9a;"><a href="https://dev.azure.com/Reality-SimSuits/Reality-SimSuit1/_git/April-Tag-VR-noSteam" target="_blank" style="color:#6a1b9a;text-decoration:underline;">April-Tag-VR-noSteam</a></h3>
+          <p style="margin:0.5em 0 1em 0;font-size:1em;">A VR project integrating AprilTag tracking for marker-based spatial awareness, designed for non-Steam VR platforms.</p>
+          <div style="display:flex;gap:0.5em;flex-wrap:wrap;">
+            <img src="https://img.shields.io/badge/VR-009688?style=flat&logo=oculus&logoColor=white" alt="VR" style="height:22px;">
+            <img src="https://img.shields.io/badge/C%23-239120?style=flat&logo=c-sharp&logoColor=white" alt="C#" style="height:22px;">
+            <img src="https://img.shields.io/badge/Unity-000000?style=flat&logo=unity&logoColor=white" alt="Unity" style="height:22px;">
+            <img src="https://img.shields.io/badge/OpenCV-5C3EE8?style=flat&logo=opencv&logoColor=white" alt="OpenCV" style="height:22px;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
