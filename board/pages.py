@@ -77,4 +77,3 @@ def server_status():
         'loadavg': psutil.getloadavg() if hasattr(psutil, 'getloadavg') else None
     }
     return render_template("pages/server_status.html", stats=stats)
-    
