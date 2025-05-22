@@ -28,8 +28,8 @@
     {% if stats.loadavg %}
     <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
       <div style="font-size:2.2em;">📊</div>
-      <div style="font-size:1.1em;">Load Avg</div>
-      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ stats.loadavg[0] }}, {{ stats.loadavg[1] }}, {{ stats.loadavg[2] }}</div>
+      <div style="color:#222222;font-size:1.1em;">Load Avg</div>
+      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">1min🕛: {{ stats.loadavg[0] }}, 5min🕛{{ stats.loadavg[1] }}, 15min🕛:{{ stats.loadavg[2] }}</div>
     </div>
     {% endif %}
   </div>
