@@ -13,13 +13,10 @@ bp = Blueprint("pages", __name__)
 
 @bp.route("/")
 def home():
-    #return "<a href='http://41.196.252.205:8000/about'> <h1 style='color:orange'> Hello, Home! </h1> </a>"
-    #return "<a href='/about'> <h1 style='color:orange'> Hello, Home! </h1> </a>"
     return render_template("pages/home.html")
 
 @bp.route("/about")
 def about():
-    #return "<a href='http://41.196.252.205:8000/'>  <h1 style='color:purple'>  Hello, About! </h1> </a>"
     return render_template("pages/about.html") 
     
 @bp.route("/pokeWizy")
@@ -40,7 +37,6 @@ def wizyVersion():
     version = "🧙‍♂️?!"
     with open("/home/ors/repos/Discord_bot_ai/version.txt", "r") as versionFile:
         version = versionFile.read()
-        # print(version)
     paylaod = { "schemaVersion": 1, "label": "Hosted Version", "message": version, "color": "#1D63ED" }
     return jsonify(paylaod)
 
