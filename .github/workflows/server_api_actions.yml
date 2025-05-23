@@ -55,5 +55,5 @@ jobs:
           script: | 
             # set -e  # Exit immediately on error
             echo "Starting API Update..."
-            echo $SSH_PASS | sudo -s systemctl restart API_home_server
+            echo "$SSH_PASS" | sudo -S systemctl restart API_home_server
             echo "Done updating Home Server API🟢"
