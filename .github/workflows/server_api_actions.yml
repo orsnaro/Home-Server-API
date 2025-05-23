@@ -36,7 +36,6 @@ jobs:
       - name: Deploy to Home Server
         uses: easingthemes/ssh-deploy@main
         env:
-          SSH_PASS: ${{ secrets.SSH_PASS }}
           SSH_PRIVATE_KEY: ${{ secrets.HOME_SERVER_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
@@ -51,9 +50,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 5m
         # script_stop: true
-          envs: SSH_PASS
           script: | 
             # set -e  # Exit immediately on error
             echo "Starting API Update..."
-            echo "$SSH_PASS" | sudo -S systemctl restart API_home_server
+            sudo systemctl restart API_home_server
             echo "Done updating Home Server API🟢"
