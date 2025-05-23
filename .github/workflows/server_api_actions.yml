@@ -36,10 +36,13 @@ jobs:
       - name: Deploy to Home Server
         uses: easingthemes/ssh-deploy@main
         env:
+          SSH_PASS: ${{ secrets.SSH_PASS }}
           SSH_PRIVATE_KEY: ${{ secrets.HOME_SERVER_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
       - name: Executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@v1
         with:
@@ -50,8 +53,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 5m
         # script_stop: true
+          env: SSH_PASS
           script: | 
             # set -e  # Exit immediately on error
             echo "Starting API Update..."
-            sudo systemctl restart API_home_server
+            sshpass -p "$SSH_PASS" sudo -S systemctl restart API_home_server <<< "$SSH_PASS"
             echo "Done updating Home Server API🟢"
