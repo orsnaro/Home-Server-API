@@ -1,8 +1,8 @@
 # Home Server Simple API  [![](https://img.shields.io/website?url=https%3A%2F%2Fors.strangled.net&logo=ubuntu&logoColor=white&label=HOST%20STATUS&labelColor=%23E95420)](https://ors.strangled.net/)
 
 
-![image](https://github.com/user-attachments/assets/75cefce5-b396-433b-b20b-974e02bd068a)
-
+[![image](https://github.com/user-attachments/assets/75cefce5-b396-433b-b20b-974e02bd068a)](https://www.youtube.com/watch?v=XBL0okHyTwM)
+ > # CLICK TO WATCH THE PROJECT LIVE! ☝️
 ----
 
 # Officially The Major Update [`V1.0.0B`](https://github.com/orsnaro/Home-Server-API/releases/tag/V1.0.0B) is out 🚀🎊!
