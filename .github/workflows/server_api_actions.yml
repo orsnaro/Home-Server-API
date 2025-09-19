@@ -58,6 +58,6 @@ jobs:
             # set -e  # Exit immediately on error
             echo "Starting API Update..."
             cd /home/ors/repos/Home_server_api/
-            pip install -r requirements.txt --upgrade
+            /home/ors/pyenvs/home_server_api/bin/pip install -r requirements.txt --upgrade
             sshpass -p "$SSH_PASS" sudo -S systemctl restart API_home_server <<< "$SSH_PASS"
             echo "Done updating Home Server API🟢"
