@@ -8,5 +8,5 @@
 """
 Gunicorn entry-point that RealPython's factory pattern understands.
 """
-from board import create_app   # realpython tutorial uses a factory
+from board import create_app
 app = create_app()

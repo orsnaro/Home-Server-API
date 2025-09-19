@@ -5,9 +5,13 @@
 # Python Version: 3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]
 # Last Update: 2025-05-22
 # =============================================
-from flask import Blueprint, render_template, redirect, abort, jsonify
+import os
+from flask import Blueprint, render_template, redirect, abort, jsonify, request, flash
+from werkzeug.security import check_password_hash
 import psutil
 import time
+from .printing import send_text_to_printer
+
 
 bp = Blueprint("pages", __name__)
 
@@ -18,6 +22,39 @@ def home():
 @bp.route("/about")
 def about():
     return render_template("pages/about.html") 
+
+@bp.route('/print', methods=['GET', 'POST'])
+def print_page():
+    PRINTER_IP = os.getenv("PRINTER_IP")
+    HASHED_PRINTER_PASSWORD = os.getenv("PRINTER_API_KEY") # hashed password hint: ors@
+
+    if request.method == 'POST':
+        # ---  checks ---
+        if not PRINTER_IP or not HASHED_PRINTER_PASSWORD:
+            flash("Server is not configured for printing. Missing IP or Password environment variable.", "danger")
+            return redirect(request.url)
+
+        user_password = request.form.get("password")
+        if not user_password or not check_password_hash(HASHED_PRINTER_PASSWORD, user_password):
+            flash("Invalid password.", "danger")
+            return redirect(request.url)
+        
+        # --- printing Logic ---
+        text_to_print = request.form.get('text_to_print')
+        if not text_to_print:
+            flash("No text provided to print.", "warning")
+            return redirect(request.url)
+
+        success, message = send_text_to_printer(PRINTER_IP, text_to_print)
+
+        if success:
+            flash(f"Print job sent successfully! Message: {message}", "success")
+        else:
+            flash(f"Failed to send print job. Error: {message}", "danger")
+        
+        return redirect(request.url)
+
+    return render_template('pages/print.html')
     
 @bp.route("/pokeWizy")
 def pokeWizy():

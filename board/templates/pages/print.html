@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Send Print Job{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Send a Print Job</h2>
+    <p>Enter the text you want to print below. The job will be sent directly to the server's configured printer.</p>
+    
+    <form action="/print" method="post">
+        <div class="mb-3">
+            <label for="text_to_print" class="form-label">Text to Print:</label>
+            <textarea class="form-control" id="text_to_print" name="text_to_print" rows="10" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password:</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Print Text</button>
+    </form>
+</div>
+{% endblock %}
