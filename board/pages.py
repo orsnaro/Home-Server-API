@@ -1,6 +1,6 @@
 # =============================================
 # File: pages.py
-# Version: 1.0.0-Beta
+# Version: 1.0.1-Beta
 # Author: Omar Rashad
 # Python Version: 3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]
 # Last Update: 2025-05-22
@@ -34,14 +34,14 @@ def about():
 def print_page():
     
     HASHED_PRINTER_PASSWORD = os.getenv("PRINTER_API_KEY") # hashed password hint: ors@
-
+    is_ok_password = False
     if request.method == 'POST':
         # ---  checks ---
         if not HASHED_PRINTER_PASSWORD:
             flash("Server is not configured for printing. Missing IP or Password environment variable.", "danger")
             return redirect(request.url)
 
-        user_password = request.form.get("password").srtip()
+        user_password = request.form.get("password").strip()
         is_ok_password = check_password_hash(HASHED_PRINTER_PASSWORD, user_password)
         if not user_password or not is_ok_password:
            flash("Invalid password.", "danger")
@@ -51,21 +51,24 @@ def print_page():
         text_to_print = request.form.get('text_to_print')
         file = request.files.get('file_to_print')
 
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            temp_file_path = os.path.join("/tmp", filename)
-            file.save(temp_file_path)
-            success, message = print_file(temp_file_path)
-            os.remove(temp_file_path)
-        elif text_to_print:
-            temp_file_path = "/tmp/print_job.txt"
-            with open(temp_file_path, "w") as f:
-                f.write(text_to_print + "\n\f")
-            success, message = print_file(temp_file_path)
-            os.remove(temp_file_path)
-        else:
-            flash("No text or file provided to print.", "warning")
-            return redirect(request.url)
+        temp_file_path = None
+        try:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                temp_file_path = os.path.join("/tmp", filename)
+                file.save(temp_file_path)
+                success, message = print_file(temp_file_path)
+            elif text_to_print:
+                temp_file_path = "/tmp/print_job.txt"
+                with open(temp_file_path, "w") as f:
+                    f.write(text_to_print + "\n\f")
+                success, message = print_file(temp_file_path)
+            else:
+                flash("No text or file provided to print.", "warning")
+                return redirect(request.url)
+        finally:
+            if temp_file_path and os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
 
         if success:
             flash(f"Print job sent successfully! Message: {message}", "success")
