@@ -54,7 +54,7 @@ def print_page():
         
         return redirect(request.url)
 
-    return render_template('pages/print.html')
+    return render_template('pages/print.html', PRINTER_IP)
     
 @bp.route("/pokeWizy")
 def pokeWizy():

@@ -1,5 +1,5 @@
 
-import ipp
+import pyipp as ipp
 import os
 
 # This code uses the 'ipp-client' library.
