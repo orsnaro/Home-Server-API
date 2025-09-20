@@ -30,8 +30,8 @@ def home():
 def about():
     return render_template("pages/about.html") 
 
-@bp.route('/print', methods=['GET', 'POST'])
-def print_page():
+@bp.route('/printer', methods=['GET', 'POST'])
+def printer():
     
     HASHED_PRINTER_PASSWORD = os.getenv("PRINTER_API_KEY") # hashed password hint: ors@
     is_ok_password = False
@@ -77,7 +77,7 @@ def print_page():
         
         return redirect(request.url)
 
-    return render_template('pages/print.html' , password_check= f"is ok password: {is_ok_password}" )
+    return render_template('pages/printer.html')
     
 @bp.route("/pokeWizy")
 def pokeWizy():
