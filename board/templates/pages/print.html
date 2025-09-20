@@ -5,19 +5,24 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-3">Send a Print Job</h2>
-    <p>Enter the text you want to print below. The job will be sent directly to the server's configured printer.</p>
+    <p>Enter the text/file you want to print below. The job will be sent directly to the server's configured printer.</p>
     
-    <form action="/print" method="post">
+    <form action="/print" method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="text_to_print" class="form-label">Text to Print:</label>
-            <textarea class="form-control" id="text_to_print" name="text_to_print" rows="10" required></textarea>
+            <textarea class="form-control" id="text_to_print" name="text_to_print" rows="10"></textarea>
         </div>
-        <p>printer ip {{PRINTER_IP}}</p>
+        <div class="mb-3">
+            <label for="file_to_print" class="form-label">Or Upload a File (Image or PDF):</label>
+            <input class="form-control" type="file" id="file_to_print" name="file_to_print">
+        </div>
+        
         <div class="mb-3">
             <label for="password" class="form-label">Password:</label>
             <input type="password" class="form-control" id="password" name="password" required>
         </div>
         <button type="submit" class="btn btn-primary">Print Text</button>
+        <p>{password_check}</p>
     </form>
 </div>
 {% endblock %}
