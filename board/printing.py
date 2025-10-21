@@ -14,6 +14,7 @@ IPP_JOB_COMPLETED = 9
 IPP_JOB_ABORTED = 8
 IPP_JOB_CANCELED = 7
 IPP_JOB_STOPPED = 6
+IPP_JOB_PROCESSING = 5 
 IPP_JOB_HELD = 4 #most of  the time it's done and waiting for release!
 IPP_JOB_PENDING= 3 #not started yet
 
@@ -29,9 +30,9 @@ def print_job_state_notifier(conn, job_id):
             time.sleep(1)
 
     if job_state in [IPP_JOB_COMPLETED, IPP_JOB_HELD] :
-        print(f"\033[32mOK: Print Job Completed Successfuly!\033[0m")
+        print(f"\033[32mOK: Print Job Completed Successfuly! with state code: {'IPP_JOB_COMPLETED' if job_state == 9 else 'IPP_JOB_HELD'}\033[0m")
     else: 
-        print(f"\033[30mERROR: couldn't complete print job!\033[0m")
+        print(f"\033[30mERROR: couldn't complete print job! with stat code: {job_state}\033[0m")
         
 def print_file(file_path: str) -> tuple[bool, str]:
     """
