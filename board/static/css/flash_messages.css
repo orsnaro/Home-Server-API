@@ -1,0 +1,27 @@
+#flash-messages {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+}
+
+.flash {
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  animation: fadeOut 4s forwards;
+}
+
+/* categories */
+.flash.success { background-color: #28a745; }
+.flash.warning { background-color: #ffc107; color: #000; }
+.flash.error { background-color: #dc3545; }
+
+/* fade out animation */
+@keyframes fadeOut {
+  0%, 90% { opacity: 1; }
+  100% { opacity: 0; display: none; }
+}
