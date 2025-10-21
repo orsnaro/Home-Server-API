@@ -14,14 +14,20 @@ IPP_JOB_COMPLETED = 9
 IPP_JOB_ABORTED = 8
 IPP_JOB_CANCELED = 7
 IPP_JOB_STOPPED = 6
+IPP_JOB_HELD = 4 #most of  the time it's done and waiting for release!
 IPP_JOB_PENDING= 3 #not started yet
 
 def print_job_state_notifier(conn, job_id):
     job_state = IPP_JOB_PENDING 
     while  job_state != IPP_JOB_COMPLETED:
         job_state =  conn.getJobAttributes(job_id)['job-state']
-        print(f"\\033[33m info: Current Print job  State: {job_state}\\033[0m")
-        if job_state in [IPP_JOB_ABORTED, IPP_JOB_CANCELED, IPP_JOB_STOPPED] :
+        print(f"\033[33m info: Current Print job  State: {job_state}\033[0m")
+        
+        if job_state == IPP_JOB_HELD:
+            conn.releaseJob(job_id)
+            job_state =  conn.getJobAttributes(job_id)['job-state'] #get last state after release!
+            break
+        elif job_state in [IPP_JOB_ABORTED, IPP_JOB_CANCELED, IPP_JOB_STOPPED] :
             break #failed no need to wait further
         else :    
             time.sleep(1)
