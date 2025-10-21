@@ -19,20 +19,16 @@ IPP_JOB_PENDING= 3 #not started yet
 
 def print_job_state_notifier(conn, job_id):
     job_state = IPP_JOB_PENDING 
-    while  job_state != IPP_JOB_COMPLETED:
+    while  job_state not in [IPP_JOB_COMPLETED, IPP_JOB_HELD]:
         job_state =  conn.getJobAttributes(job_id)['job-state']
         print(f"\033[33m info: Current Print job  State: {job_state}\033[0m")
         
-        if job_state == IPP_JOB_HELD:
-            conn.releaseJobHold(job_id)
-            job_state =  conn.getJobAttributes(job_id)['job-state'] #get last state after release!
-            break
-        elif job_state in [IPP_JOB_ABORTED, IPP_JOB_CANCELED, IPP_JOB_STOPPED] :
+        if job_state in [IPP_JOB_ABORTED, IPP_JOB_CANCELED, IPP_JOB_STOPPED] :
             break #failed no need to wait further
         else :    
             time.sleep(1)
 
-    if job_state == IPP_JOB_COMPLETED:
+    if job_state in [IPP_JOB_COMPLETED, IPP_JOB_HELD] :
         print(f"\033[32mOK: Print Job Completed Successfuly!\033[0m")
     else: 
         print(f"\033[30mERROR: couldn't complete print job!\033[0m")
