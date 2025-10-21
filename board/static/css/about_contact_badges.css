@@ -1,0 +1,22 @@
+.contact-badges .badge-link {
+            display: inline-block;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(106,27,154,0.10);
+            transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+            filter: grayscale(0.15) brightness(0.98);
+            background: rgba(255,255,255,0.15);
+          }
+          .contact-badges .badge-link:hover {
+            transform: translateY(-4px) scale(1.07) rotate(-2deg);
+            box-shadow: 0 6px 18px rgba(106,27,154,0.18);
+            filter: grayscale(0) brightness(1.08) drop-shadow(0 0 6px #6a1b9a33);
+            background: rgba(255,255,255,0.35);
+          }
+          .contact-badges img {
+            display: block;
+            height: 32px;
+            border-radius: 0;
+            margin: 0;
+          }
+          

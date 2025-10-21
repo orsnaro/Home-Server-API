@@ -1,9 +1,9 @@
 # =============================================
 # File: pages.py
-# Version: 1.0.1-Beta
+# Version: 1.0.2-Beta
 # Author: Omar Rashad
 # Python Version: 3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]
-# Last Update: 2025-05-22
+# Last Update: 2025-10-21
 # =============================================
 import os
 from flask import Blueprint, render_template, redirect, abort, jsonify, request, flash
@@ -32,18 +32,20 @@ def about():
 
 @bp.route('/printer', methods=['GET', 'POST'])
 def printer():
-    
+    # print() methods here shows in sever terminal 'sudo journalctl -u API_home_server.service'
     HASHED_PRINTER_PASSWORD = os.getenv("PRINTER_API_KEY") # hashed password hint: ors@
     is_ok_password = False
-    if request.method == 'POST':
+    if request.method == 'POST': #req from our form!
         # ---  checks ---
         if not HASHED_PRINTER_PASSWORD:
+            print("\033[41mServer is not configured for printing. Missing IP or Password environment variable.\033[0m")
             flash("Server is not configured for printing. Missing IP or Password environment variable.", "danger")
             return redirect(request.url)
 
         user_password = request.form.get("password").strip()
         is_ok_password = check_password_hash(HASHED_PRINTER_PASSWORD, user_password)
         if not user_password or not is_ok_password:
+           print("\033[41mInvalid password.\033[0m")
            flash("Invalid password.", "danger")
            return redirect(request.url)
         
@@ -64,6 +66,7 @@ def printer():
                     f.write(text_to_print + "\n\f")
                 success, message = print_file(temp_file_path)
             else:
+                print("\033[43mNo text or file provided to print.\033[0m")
                 flash("No text or file provided to print.", "warning")
                 return redirect(request.url)
         finally:
@@ -71,13 +74,15 @@ def printer():
                 os.remove(temp_file_path)
 
         if success:
+            print(f"\033[42mPrint job sent successfully! Message: {message}\033[0m")
             flash(f"Print job sent successfully! Message: {message}", "success")
         else:
+            print(f"\033[41mFailed to send print job. Error: {message}\033[0m")
             flash(f"Failed to send print job. Error: {message}", "danger")
         
         return redirect(request.url)
-
-    return render_template('pages/printer.html')
+    else: # if I'm just searching ors.strangled.net/printer OR got redirected() i.e( a GET request or done with the form) just give me the page html and dont send any printer commands
+        return render_template('pages/printer.html') 
     
 @bp.route("/pokeWizy")
 def pokeWizy():
