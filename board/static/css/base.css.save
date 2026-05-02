@@ -1,7 +1,7 @@
  :root {
       --main-bg: #f7f7fa;
       --main-fg: #222;
-      --header-bg: linear-gradient(135deg, rgba(106, 27, 154, 0.95), rgba(69, 39, 160, 0.95));
+      --header-bg: rgba(106, 27, 154, 0.85);
       --nav-bg: rgba(237, 231, 246, 0.85);
       --main-card-bg: rgba(255, 255, 255, 0.85);
       --glass-blur: 16px;
@@ -21,7 +21,7 @@
     body.dark {
       --main-bg: #181824;
       --main-fg: #f7f7fa;
-      --header-bg: linear-gradient(135deg, rgba(40, 20, 60, 0.95), rgba(26, 26, 46, 0.95));
+      --header-bg: rgba(40, 20, 60, 0.85);
       --nav-bg: rgba(50, 40, 80, 0.85);
       --main-card-bg: rgba(30, 30, 40, 0.85);
     }
@@ -38,15 +38,13 @@
     header {
       background: var(--header-bg);
       color: #fff;
-      padding: 1.2rem 2rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       border-radius: 0 0 18px 18px;
       backdrop-filter: blur(var(--glass-blur));
       -webkit-backdrop-filter: blur(var(--glass-blur));
       margin-bottom: 0.5rem;
       transition: background 0.3s;
-      z-index: 5;
-      position: relative;
     }
 
     nav {
@@ -164,10 +162,8 @@
     }
 
     header .main-title {
-      color: #ffffff !important;
-      text-shadow: 0 2px 15px rgba(0,0,0,0.4);
-      letter-spacing: 2px;
-      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     h2,

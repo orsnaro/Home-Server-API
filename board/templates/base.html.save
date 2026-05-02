@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Ors Server - {% block title %}{% endblock title %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/77698890?v=4">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{url_for('static', filename='static/css/base.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='static/css/flash_messages.css')}}">
+</head>
+
+<body>
+  <!-- 🔹 Flash messages block -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  <!-- 🔹 End flash block -->
+   
+  <div id="threejs-bg"></div>
+  <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
+  <header>
+    <div style="display:flex;align-items:center;gap:1.2em;justify-content:center;padding-top:0.5em;">
+      <a href="{{ url_for('pages.home') }}"> <img src="https://avatars.githubusercontent.com/u/77698890?v=4"
+          alt="Omar Rashad" class="logo-spin"
+          style="width:54px;height:54px;border-radius:50%;box-shadow:0 2px 8px rgba(106,27,154,0.12);"> </a>
+      <h1 style="font-size:2.1rem;margin:0;animation:fadeIn 1.2s;" class="main-title">Omar's Home Server
+        Dashboard</h1>
+    </div>
+  </header>
+  <nav>
+    <a href="{{ url_for('pages.home') }}">Home</a>
+    <a href="{{ url_for('pages.about') }}">About</a>
+    <a href="{{ url_for('pages.printer') }}">Print Anywhere 🖨️</a>
+    <a href="{{ url_for('pages.wizy_status') }}">Wizy Status</a>
+    <a href="{{ url_for('pages.api_info') }}">API Info</a>
+    <a href="{{ url_for('pages.server_status') }}">Server Status</a>
+  </nav>
+  <main>
+    {% block content %}<p>No messages.</p>{% endblock content %}
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="{{ url_for('static', filename='static/js/base.js') }}"></script>
+</body>
+
+</html>
