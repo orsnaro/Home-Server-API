@@ -1,27 +1,70 @@
 {% extends "base.html" %}
 
-{% block title %}Send Print Job{% endblock %}
+{% block title %}Print Anywhere 🖨️{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-3">Send a Print Job</h2>
-    <p>Enter the text/file you want to print below. The job will be sent directly to the server's configured printer.</p>
-    
-    <form action="/printer" method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label for="text_to_print" class="form-label">Text to Print:</label>
-            <textarea class="form-control" id="text_to_print" name="text_to_print"></textarea>
-        </div>
-        <div class="mb-3">
-            <label for="file_to_print" class="form-label">Or Upload a File (Image or PDF):</label>
-            <input class="form-control" type="file" id="file_to_print" name="file_to_print">
-        </div>
-        
-        <div class="mb-3">
-            <label for="password" class="form-label">Password:</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Print 🖨️</button>
-    </form>
+<link rel="stylesheet" href="{{ url_for('static', filename='static/css/printer.css') }}">
+
+<div class="printer-container">
+    <div class="center">
+        <h2 style="color:#6a1b9a;font-size:2.2rem;margin-bottom:0.5rem;animation: fadeUp 0.8s ease-out;">Print Anywhere 🖨️</h2>
+        <p style="color:#666;font-size:1.05rem;margin-bottom:2rem;animation: fadeUp 1s ease-out;">Send documents or notes directly to Omar's home printer from anywhere in the world.</p>
+    </div>
+
+    <div class="print-card" style="animation: fadeUp 1.2s ease-out;">
+        <form action="/printer" method="post" enctype="multipart/form-data">
+            <div class="input-group">
+                <label for="text_to_print" class="input-label">
+                    <span>📝</span> Text to Print
+                </label>
+                <textarea class="modern-input modern-textarea" id="text_to_print" name="text_to_print" placeholder="Type or paste your text here..."></textarea>
+            </div>
+
+            <div class="divider">OR</div>
+
+            <div class="input-group">
+                <label class="input-label">
+                    <span>📄</span> Upload a File
+                </label>
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-btn">
+                        <span style="font-size: 2.5rem;">📁</span>
+                        <span style="font-weight: 600;">Click to browse or drag & drop</span>
+                        <span style="font-size: 0.8rem; opacity: 0.7;">PDF, PNG, JPG, JPEG, GIF</span>
+                        <div id="file-name" class="file-name-display"></div>
+                    </div>
+                    <input type="file" id="file_to_print" name="file_to_print" class="file-upload-input" onchange="updateFileName(this)">
+                </div>
+            </div>
+
+            <div style="margin: 2rem 0; height: 1.5px; background: rgba(106, 27, 154, 0.1); border-radius: 1px;"></div>
+
+            <div class="input-group">
+                <label for="password" class="input-label">
+                    <span>🔒</span> Security Password
+                </label>
+                <input type="password" class="modern-input" id="password" name="password" placeholder="Enter printer access key" required>
+            </div>
+
+            <button type="submit" class="print-btn">
+                <span>🚀</span> Send to Printer
+            </button>
+        </form>
+    </div>
 </div>
+
+<script>
+function updateFileName(input) {
+    const display = document.getElementById('file-name');
+    if (input.files && input.files.length > 0) {
+        display.textContent = "Selected file: " + input.files[0].name;
+        display.style.display = 'block';
+        display.style.marginTop = '10px';
+        display.style.fontWeight = '500';
+        display.style.color = 'var(--accent2)';
+    } else {
+        display.style.display = 'none';
+    }
+}
+</script>
 {% endblock %}
