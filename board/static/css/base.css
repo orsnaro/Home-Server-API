@@ -161,6 +161,11 @@
       /* text-shadow: 0 2px 12px #ede7f6; */
     }
 
+    header .main-title {
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
     h2,
     .subtitle {
       font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
