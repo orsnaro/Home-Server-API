@@ -26,54 +26,27 @@
   <!-- 🔹 End flash block -->
    
   <div id="threejs-bg"></div>
-  
-  <button class="menu-toggle" id="menuToggle" title="Toggle Menu">☰</button>
   <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">🌙</button>
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <a href="{{ url_for('pages.home') }}"> 
-        <img src="https://avatars.githubusercontent.com/u/77698890?v=4" alt="Omar Rashad" class="logo-spin">
-      </a>
-      <h2 class="sidebar-title">ORS Server</h2>
+  <header>
+    <div style="display:flex;align-items:center;gap:1.2em;justify-content:center;padding-top:0.5em;">
+      <a href="{{ url_for('pages.home') }}"> <img src="https://avatars.githubusercontent.com/u/77698890?v=4"
+          alt="Omar Rashad" class="logo-spin"
+          style="width:54px;height:54px;border-radius:50%;box-shadow:0 2px 8px rgba(106,27,154,0.12);"> </a>
+      <h1 style="font-size:2.1rem;color:#6a1b9a;margin:0;animation:fadeIn 1.2s;" class="main-title">Omar's Home Server
+        Dashboard</h1>
     </div>
-    <nav class="sidebar-nav">
-      <a href="{{ url_for('pages.home') }}" class="nav-item">
-        <span class="nav-icon">🏠</span> Home
-      </a>
-      <a href="{{ url_for('pages.about') }}" class="nav-item">
-        <span class="nav-icon">📑</span> About
-      </a>
-      <a href="{{ url_for('pages.printer') }}" class="nav-item">
-        <span class="nav-icon">🖨️</span> Print Anywhere
-      </a>
-      <a href="{{ url_for('pages.wizy_status') }}" class="nav-item">
-        <span class="nav-icon">🧙‍♂️</span> Wizy Status
-      </a>
-      <a href="{{ url_for('pages.api_info') }}" class="nav-item">
-        <span class="nav-icon">ℹ️</span> API Info
-      </a>
-      <a href="{{ url_for('pages.server_status') }}" class="nav-item">
-        <span class="nav-icon">🖥️</span> Server Status
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <p>© 2026 Omar Rashad</p>
-    </div>
-  </aside>
-
-  <div class="content-wrapper">
-    <header>
-      <div style="display:flex;align-items:center;gap:1.2em;justify-content:center;padding-top:0.5em;">
-        <h1 class="main-title">Omar's Home Server Dashboard</h1>
-      </div>
-    </header>
-
-    <main>
-      {% block content %}<p>No messages.</p>{% endblock content %}
-    </main>
-  </div>
-
+  </header>
+  <nav>
+    <a href="{{ url_for('pages.home') }}">Home</a>
+    <a href="{{ url_for('pages.about') }}">About</a>
+    <a href="{{ url_for('pages.printer') }}">Print Anywhere 🖨️</a>
+    <a href="{{ url_for('pages.wizy_status') }}">Wizy Status</a>
+    <a href="{{ url_for('pages.api_info') }}">API Info</a>
+    <a href="{{ url_for('pages.server_status') }}">Server Status</a>
+  </nav>
+  <main>
+    {% block content %}<p>No messages.</p>{% endblock content %}
+  </main>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="{{ url_for('static', filename='static/js/base.js') }}"></script>
 </body>
