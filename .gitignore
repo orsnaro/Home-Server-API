@@ -1,5 +1,6 @@
 .is_autoVenv  
 .env_autoLeave  
+.env
 .vscode\*  
 .vscode\  
 __pycache__\  
