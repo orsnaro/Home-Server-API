@@ -1,12 +1,18 @@
 # =============================================
 # File: printing.py
-# Version: 1.0.2-Beta
+# Version: 1.0.3-Beta
 # Author: Omar Rashad
 # Python Version: 3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]
-# Last Update: 2025-10-21
+# Last Update: 2026-05-02
 # =============================================
-import cups
+try:
+    import cups
+    HAS_CUPS = True
+except ImportError:
+    HAS_CUPS = False
+
 import os
+import platform
 from threading import Thread
 import time
 
@@ -44,6 +50,13 @@ def print_file(file_path: str) -> tuple[bool, str]:
     Returns:
         A tuple containing a boolean for success and a status message string.
     """
+    # Windows/Non-CUPS Guard
+    if platform.system() == "Windows":
+        return False, "Printing is disabled on Windows. Use a Linux environment with CUPS."
+    
+    if not HAS_CUPS:
+        return False, "CUPS library (pycups) is not installed. Printing unavailable."
+
     try:
         conn = cups.Connection()
 

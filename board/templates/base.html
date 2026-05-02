@@ -8,8 +8,8 @@
   <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/77698890?v=4">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{url_for('static', filename='static/css/base.css')}}">
-  <link rel="stylesheet" href="{{url_for('static', filename='static/css/flash_messages.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/flash_messages.css')}}">
 </head>
 
 <body>
@@ -48,7 +48,7 @@
     {% block content %}<p>No messages.</p>{% endblock content %}
   </main>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="{{ url_for('static', filename='static/js/base.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 </body>
 
 </html>
