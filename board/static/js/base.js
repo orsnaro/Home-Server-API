@@ -6,24 +6,34 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('threejs-bg').appendChild(renderer.domElement);
 camera.position.z = 5;
 const cubes = [];
-for (let i = 0; i < 12; i++) {
-  const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshStandardMaterial({ color: 0x6a1b9a, metalness: 0.5, roughness: 0.5 });
+// --- Optimized Cube Logic ---
+for (let i = 0; i < 15; i++) {
+  const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5); // Smaller cubes
+  const material = new THREE.MeshStandardMaterial({ 
+    color: 0x6a1b9a, 
+    metalness: 0.3, 
+    roughness: 0.7,
+    transparent: true,
+    opacity: 0.4 // More subtle
+  });
   const cube = new THREE.Mesh(geometry, material);
-  cube.position.x = (Math.random() - 0.5) * 8;
-  cube.position.y = (Math.random() - 0.5) * 6;
-  cube.position.z = (Math.random() - 0.5) * 4;
+  cube.position.x = (Math.random() - 0.5) * 12;
+  cube.position.y = (Math.random() - 0.5) * 10;
+  cube.position.z = (Math.random() - 0.5) * 6 - 5; // Push further back
   cubes.push(cube);
   scene.add(cube);
 }
-const light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(0, 0, 10);
+const light = new THREE.PointLight(0xffffff, 0.8, 100);
+light.position.set(0, 5, 10);
 scene.add(light);
+const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Add ambient light
+scene.add(ambientLight);
+
 function animate() {
   requestAnimationFrame(animate);
   cubes.forEach((cube, i) => {
-    cube.rotation.x += 0.01 + i * 0.001;
-    cube.rotation.y += 0.01 + i * 0.001;
+    cube.rotation.x += 0.005 + i * 0.0005;
+    cube.rotation.y += 0.005 + i * 0.0005;
   });
   renderer.render(scene, camera);
 }
@@ -39,7 +49,8 @@ const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 
 if (menuToggle && sidebar) {
-    menuToggle.onclick = () => {
+    menuToggle.onclick = (e) => {
+        e.stopPropagation();
         sidebar.classList.toggle('active');
         menuToggle.textContent = sidebar.classList.contains('active') ? '✕' : '☰';
     };
@@ -80,7 +91,8 @@ if (localStorage.getItem('darkMode') === '0') {
 // Highlight active nav item
 const currentPath = window.location.pathname;
 document.querySelectorAll('.nav-item').forEach(item => {
-    if (item.getAttribute('href') === currentPath) {
+    const itemPath = item.getAttribute('href');
+    if (itemPath === currentPath || (currentPath === '/' && itemPath.includes('home'))) {
         item.classList.add('active');
     }
 });
