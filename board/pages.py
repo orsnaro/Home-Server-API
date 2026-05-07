@@ -8,6 +8,7 @@
 import os
 import subprocess
 import platform
+import glob
 from flask import Blueprint, render_template, redirect, abort, jsonify, request, flash, url_for
 from werkzeug.security import check_password_hash
 import psutil
@@ -83,7 +84,7 @@ SERVICES = [
         "type": "info",
         "proc_name": "openclaw",
         "custom_info": True, # Flag to show a 'View Status' button
-        "is_protected": True
+        "is_protected": False
     },
     {
         "id": "docker",
@@ -119,6 +120,7 @@ SERVICES = [
 # --- Global state for network speed calculation ---
 last_net_io = None
 last_net_time = None
+last_power_sample = None
 
 def get_docker_containers():
     # If on Windows, we could try to check if docker is running first
@@ -169,40 +171,135 @@ def get_ollama_models():
     except Exception:
         return []
 
+def _read_int_file(path):
+    with open(path, "r") as f:
+        return int(f.read().strip())
+
+
+def _read_linux_power_supply_watts():
+    try:
+        for supply_path in glob.glob("/sys/class/power_supply/*"):
+            power_now_path = os.path.join(supply_path, "power_now")
+            if os.path.exists(power_now_path):
+                return round(_read_int_file(power_now_path) / 1_000_000, 2)
+
+            current_now_path = os.path.join(supply_path, "current_now")
+            voltage_now_path = os.path.join(supply_path, "voltage_now")
+            if os.path.exists(current_now_path) and os.path.exists(voltage_now_path):
+                current_ua = _read_int_file(current_now_path)
+                voltage_uv = _read_int_file(voltage_now_path)
+                return round((current_ua * voltage_uv) / 1_000_000_000_000, 2)
+    except Exception:
+        pass
+
+    return None
+
+
+def _read_linux_hwmon_power_watts():
+    total_watts = 0.0
+    found = False
+
+    try:
+        for hwmon_path in glob.glob("/sys/class/hwmon/hwmon*"):
+            for power_path in glob.glob(os.path.join(hwmon_path, "power*_input")):
+                microwatts = _read_int_file(power_path)
+                total_watts += microwatts / 1_000_000
+                found = True
+    except Exception:
+        pass
+
+    if found:
+        return round(total_watts, 2)
+    return None
+
+
+def _read_linux_rapl_power_watts():
+    global last_power_sample
+
+    energy_paths = []
+    try:
+        for rapl_path in glob.glob("/sys/class/powercap/intel-rapl:*"):
+            if os.path.basename(rapl_path).count(":") == 1:
+                energy_path = os.path.join(rapl_path, "energy_uj")
+                max_energy_path = os.path.join(rapl_path, "max_energy_range_uj")
+                if os.path.exists(energy_path):
+                    energy_paths.append((energy_path, max_energy_path))
+    except Exception:
+        return None
+
+    if not energy_paths:
+        return None
+
+    now = time.time()
+    current_energies = {}
+
+    try:
+        for energy_path, max_energy_path in energy_paths:
+            energy = _read_int_file(energy_path)
+            max_energy = _read_int_file(max_energy_path) if os.path.exists(max_energy_path) else None
+            current_energies[energy_path] = {"energy": energy, "max_energy": max_energy}
+    except Exception:
+        return None
+
+    if not last_power_sample:
+        last_power_sample = {"time": now, "energies": current_energies}
+        return None
+
+    elapsed = now - last_power_sample["time"]
+    if elapsed <= 0:
+        last_power_sample = {"time": now, "energies": current_energies}
+        return None
+
+    total_delta = 0
+    for energy_path, sample in current_energies.items():
+        previous = last_power_sample["energies"].get(energy_path)
+        if previous is None:
+            continue
+
+        delta = sample["energy"] - previous["energy"]
+        if delta < 0 and sample["max_energy"]:
+            delta = (sample["max_energy"] - previous["energy"]) + sample["energy"]
+
+        if delta > 0:
+            total_delta += delta
+
+    last_power_sample = {"time": now, "energies": current_energies}
+    if total_delta <= 0:
+        return None
+
+    return round((total_delta / 1_000_000) / elapsed, 2)
+
+
 def get_power_draw():
-    # Attempt to read power draw from /sys/class/power_supply or similar (Linux)
-    if platform.system() != "Windows":
-        try:
-            # Check for battery power (e.g. laptop server)
-            for ps in os.listdir("/sys/class/power_supply/"):
-                path = f"/sys/class/power_supply/{ps}/power_now"
-                if os.path.exists(path):
-                    with open(path, "r") as f:
-                        # value is usually in microwatts
-                        microwatts = int(f.read().strip())
-                        return round(microwatts / 1_000_000, 2)
-        except Exception:
-            pass
-        
-        # Alternative: check for 'upower' command
-        try:
-            result = subprocess.run(["upower", "-i", "/org/freedesktop/UPower/devices/battery_BAT0"], capture_output=True, text=True, timeout=2)
-            if result.returncode == 0:
-                for line in result.stdout.split("\n"):
-                    if "energy-rate:" in line:
-                        rate_str = line.split(":")[1].strip().split(" ")[0]
-                        return round(float(rate_str), 2)
-        except Exception:
-            pass
-    else:
-        # Windows: try to get battery info which sometimes includes power rate
-        try:
-            battery = psutil.sensors_battery()
-            if battery:
-                # psutil doesn't directly give Watts, but we can indicate if it's plugged in
-                return "Plugged In" if battery.power_plugged else f"{battery.percent}%"
-        except Exception:
-            pass
+    if platform.system() == "Windows":
+        return "N/A"
+
+    direct_power = _read_linux_power_supply_watts()
+    if direct_power is not None:
+        return f"{direct_power:.2f} W"
+
+    hwmon_power = _read_linux_hwmon_power_watts()
+    if hwmon_power is not None:
+        return f"{hwmon_power:.2f} W"
+
+    rapl_power = _read_linux_rapl_power_watts()
+    if rapl_power is not None:
+        return f"{rapl_power:.2f} W"
+
+    try:
+        result = subprocess.run(
+            ["upower", "-i", "/org/freedesktop/UPower/devices/battery_BAT0"],
+            capture_output=True,
+            text=True,
+            timeout=2
+        )
+        if result.returncode == 0:
+            for line in result.stdout.split("\n"):
+                if "energy-rate:" in line:
+                    rate_str = line.split(":")[1].strip().split(" ")[0]
+                    return f"{float(rate_str):.2f} W"
+    except Exception:
+        pass
 
     return "N/A"
 
