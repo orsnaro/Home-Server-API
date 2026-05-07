@@ -4,14 +4,15 @@
 <div class="center">
   <h2 style="color:#6a1b9a;font-size:2rem;">Discord Bot Wizy Status</h2>
   {% if is_running %}
-    <div style="font-size:3rem;">🧙‍♂️<span style="color:#43b581;">🟢</span></div>
+    <div style="font-size:3rem;">W<span style="color:#43b581;"> RUNNING</span></div>
     <h3 style="color:#43b581;">Wizy is Running!</h3>
     <p style="color:#333;">Your Discord bot is up and ready to cast some magic.</p>
+    <p style="color:#666;">Detected {{ process_count }} matching process{{ '' if process_count == 1 else 'es' }}.</p>
   {% else %}
-    <div style="font-size:3rem;">🧙‍♂️<span style="color:#f04747;">🔴</span></div>
+    <div style="font-size:3rem;">W<span style="color:#f04747;"> OFFLINE</span></div>
     <h3 style="color:#f04747;">Wizy is Sleeping...</h3>
     <p style="color:#333;">The bot is not running on the server. Try again or check the process.</p>
   {% endif %}
-  <button onclick="window.location.reload()" style="margin-top:1.5em;padding:0.7em 2em;background:#6a1b9a;color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(106,27,154,0.10);transition:background 0.2s;">🔄 Retry</button>
+  <button onclick="window.location.reload()" style="margin-top:1.5em;padding:0.7em 2em;background:#6a1b9a;color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(106,27,154,0.10);transition:background 0.2s;">Retry</button>
 </div>
-{% endblock content %} 
+{% endblock content %}

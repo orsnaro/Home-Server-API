@@ -29,11 +29,18 @@
         font-size: 0.9rem;
         color: #888;
     }
+    .status-summary {
+        margin-top: 0.5rem;
+        font-weight: 600;
+    }
 </style>
 
 <div class="center">
-    <h1 class="main-title">🦙 Ollama Models</h1>
+    <h1 class="main-title">Ollama Models</h1>
     <p style="color: #666;">Locally hosted Large Language Models</p>
+    <p class="status-summary" style="color: {{ '#43b581' if ollama_available else '#f04747' }};">
+        {{ 'Ollama service reachable' if ollama_available else 'Ollama service unavailable' }}
+    </p>
 </div>
 
 <div class="models-container">
@@ -48,8 +55,15 @@
             </div>
         </div>
         {% endfor %}
+    {% elif ollama_available %}
+        <p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">Ollama is online, but no models are currently installed.</p>
     {% else %}
-        <p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">No models found or Ollama service is unavailable.</p>
+        <div style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">
+            <p>Ollama is unavailable on this host.</p>
+            {% if status_message %}
+            <pre style="white-space: pre-wrap; color: #888; margin: 0; text-align: left;">{{ status_message }}</pre>
+            {% endif %}
+        </div>
     {% endif %}
 </div>
 
