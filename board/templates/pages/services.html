@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Services Dashboard{% endblock title %}
+
+{% block content %}
+<!-- Bootstrap CSS for Modal -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/services.css') }}">
+
+<div class="center">
+  <h1 class="main-title">Services Dashboard</h1>
+  <p style="color: #666; margin-bottom: 2rem;">Manage and monitor all home server services from one place.</p>
+</div>
+
+<!-- Unlock Modal -->
+<div class="modal fade" id="unlockModal" tabindex="-1" aria-labelledby="unlockModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="unlockModalLabel">🔒 Unlock Service</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Enter the Dashboard Passcode to unlock this service:</p>
+        <input type="password" id="dashboardPasscode" class="form-control modern-pass" placeholder="Passcode">
+        <div id="unlockError" class="text-danger mt-2" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmUnlockBtn" style="background-color: var(--accent); border: none;">Unlock Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Info Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content glass-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="infoModalLabel">📝 Service Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <pre id="serviceInfoContent" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; font-size: 0.85rem; color: #eee; overflow-x: auto; white-space: pre-wrap;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="services-grid">
+  {% for service in services %}
+    <div class="service-card {{ 'protected' if service.is_protected else '' }}" id="service-{{ service.id }}">
+      {% if service.is_protected %}
+        <div class="protection-overlay" onclick="openUnlockModal('{{ service.id }}')" onmouseenter="this.querySelector('.lock-icon').textContent='🔓'" onmouseleave="this.querySelector('.lock-icon').textContent='🔒'">
+          <div class="lock-icon">🔒</div>
+        </div>
+      {% endif %}
+
+      <div class="service-content">
+        <div class="status-badge {{ 'status-online' if service.is_running else 'status-offline' }}">
+          <span class="status-dot"></span>
+          {{ 'Live' if service.is_running else 'Offline' }}
+        </div>
+        
+        <div>
+          <div class="service-icon">{{ service.icon }}</div>
+          <div class="service-name">{{ service.name }}</div>
+          <div class="service-desc">{{ service.description }}</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+          {% if service.custom_info %}
+            <button onclick="showServiceInfo('{{ service.id }}')" class="service-btn" style="background: rgba(106, 27, 154, 0.1); color: var(--accent);">View Status Details</button>
+          {% endif %}
+
+          {% if service.type == 'page' %}
+            <a href="{{ url_for(service.link) }}" class="service-btn">Open Page</a>
+          {% elif service.type == 'command' %}
+            <form action="{{ url_for('pages.service_command', service_id=service.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to restart this service?')">
+                <div style="margin-bottom: 0.5rem;">
+                    <label style="font-size: 0.75rem; color: #888; margin-bottom: 0.2rem; display: block;">Service Authorization Key:</label>
+                    <input type="password" name="password" placeholder="Access Key" required 
+                           style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 0.5rem;">
+                </div>
+                <button type="submit" class="service-btn btn-command">Restart Service</button>
+            </form>
+          {% elif not service.custom_info %}
+            <div class="service-btn" style="background: rgba(106, 27, 154, 0.1); color: var(--accent); cursor: default;">Status Only</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Robust Theme Sync Logic
+const syncBg = () => {
+    const isDark = document.body.classList.contains('dark');
+    document.documentElement.style.backgroundColor = isDark ? '#181824' : '#f7f7fa';
+};
+
+// Use MutationObserver to watch for class changes on body (from base.js)
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+            syncBg();
+        }
+    });
+});
+
+observer.observe(document.body, { attributes: true });
+
+// Initial sync after a short delay to ensure base.js has finished initializing
+window.addEventListener('load', syncBg);
+// Immediate attempt just in case
+syncBg();
+
+// Teleport modals to body to escape stacking context
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.appendChild(document.getElementById('unlockModal'));
+    document.body.appendChild(document.getElementById('infoModal'));
+});
+
+let currentServiceId = null;
+const unlockModal = new bootstrap.Modal(document.getElementById('unlockModal'));
+
+function openUnlockModal(serviceId) {
+    currentServiceId = serviceId;
+    document.getElementById('dashboardPasscode').value = '';
+    document.getElementById('unlockError').style.display = 'none';
+    unlockModal.show();
+}
+
+document.getElementById('confirmUnlockBtn').addEventListener('click', () => {
+    const passcode = document.getElementById('dashboardPasscode').value;
+    if (!passcode) return;
+
+    fetch("{{ url_for('pages.verify_dashboard_passcode') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ passcode: passcode }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const card = document.getElementById(`service-${currentServiceId}`);
+            card.classList.remove('protected');
+            const overlay = card.querySelector('.protection-overlay');
+            if (overlay) overlay.style.display = 'none';
+            unlockModal.hide();
+        } else {
+            const errorDiv = document.getElementById('unlockError');
+            errorDiv.textContent = data.message || "Invalid passcode.";
+            errorDiv.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred. Please check the server logs.");
+    });
+});
+
+// Also allow "Enter" key to submit
+document.getElementById('dashboardPasscode').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('confirmUnlockBtn').click();
+    }
+});
+
+const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
+function showServiceInfo(serviceId) {
+    const contentArea = document.getElementById('serviceInfoContent');
+    contentArea.textContent = "Loading status details...";
+    infoModal.show();
+
+    fetch(`/services/info/${serviceId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                contentArea.textContent = data.info || "No details available.";
+            } else {
+                contentArea.textContent = "Error: " + data.message;
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            contentArea.textContent = "Failed to fetch service info.";
+        });
+}
+</script>
+{% endblock content %}

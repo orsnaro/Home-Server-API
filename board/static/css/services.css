@@ -1,0 +1,219 @@
+/* Scoped fix for Bootstrap body background reset */
+body {
+    background: transparent !important;
+}
+
+/* Allow services dashboard to be wider than the standard 700px */
+main {
+    max-width: 1000px !important;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.service-card {
+    background: var(--main-card-bg);
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Protection Overlay & Blur */
+.service-card.protected .service-content {
+    filter: blur(12px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.protection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.protection-overlay:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.lock-icon {
+    font-size: 3.5rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 0 10px rgba(106, 27, 154, 0.3));
+    user-select: none;
+}
+
+.protection-overlay:hover .lock-icon {
+    transform: scale(1.2) rotate(-10deg);
+}
+
+/* Glassmorphism for Bootstrap Modal */
+.modal-content.glass-modal {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 22px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure modal is above everything */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+.modal {
+    z-index: 1050 !important;
+}
+
+body.dark .modal-content.glass-modal {
+    background: rgba(30, 30, 40, 0.85);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modal-header, .modal-footer {
+    border: none;
+}
+
+.modal-title {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.form-control.modern-pass {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(106, 27, 154, 0.2);
+    border-radius: 10px;
+    padding: 0.8rem;
+}
+
+body.dark .form-control.modern-pass {
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(106, 27, 154, 0.15);
+}
+
+.service-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.service-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.service-desc {
+    font-size: 0.95rem;
+    color: var(--main-fg);
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+.status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body.dark .status-badge {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.status-online {
+    color: #4ade80;
+}
+
+.status-online .status-dot {
+    background: currentColor;
+    box-shadow: 0 0 12px #4ade80;
+    animation: pulse 2s infinite;
+}
+
+.status-offline {
+    color: #f04747;
+    opacity: 0.7; /* Make offline more subtle */
+}
+
+body.dark .status-offline {
+    color: #ff6b6b;
+}
+
+.status-offline .status-dot {
+    background: currentColor;
+    box-shadow: none; /* Remove glow from offline */
+}
+
+.service-btn {
+    display: inline-block;
+    padding: 0.7rem 1.2rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.service-btn:hover {
+    background: var(--accent2);
+}
+
+.service-btn.btn-command {
+    background: #283593;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 181, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(67, 181, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 181, 129, 0); }
+}

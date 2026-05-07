@@ -39,6 +39,77 @@ def print_job_state_notifier(conn, job_id):
         print(f"\033[32mOK: Print Job Completed Successfuly! with state code: {'IPP_JOB_COMPLETED' if job_state == 9 else 'IPP_JOB_HELD'}\033[0m")
     else: 
         print(f"\033[30mERROR: couldn't complete print job! with stat code: {job_state}\033[0m")
+
+def get_printer_status() -> bool:
+    """
+    Checks if the CUPS service is running and if there is at least one 
+    available printer that is not in a 'Stopped' state.
+    """
+    if platform.system() == "Windows" or not HAS_CUPS:
+        return False
+
+    try:
+        conn = cups.Connection()
+        printers = conn.getPrinters()
+        if not printers:
+            return False
+
+        # Check if any printer is not stopped (state 5 is stopped)
+        for p_name in printers:
+            state = printers[p_name].get('printer-state')
+            if state and state != 5:
+                return True
+        return False
+    except Exception:
+        return False
+
+def print_file(file_path: str) -> tuple[bool, str]:
+
+    """
+    Checks if the CUPS service is running and if there is at least one 
+    available printer that is not in a 'Stopped' state.
+    """
+    if platform.system() == "Windows" or not HAS_CUPS:
+        return False
+
+    try:
+        conn = cups.Connection()
+        printers = conn.getPrinters()
+        if not printers:
+            return False
+
+        # Check if any printer is not stopped (state 5 is stopped)
+        for p_name in printers:
+            state = printers[p_name].get('printer-state')
+            if state and state != 5:
+                return True
+        return False
+    except Exception:
+        return False
+
+def print_file(file_path: str) -> tuple[bool, str]:
+
+    """
+    Checks if the CUPS service is running and if there is at least one 
+    available printer that is not in a 'Stopped' state.
+    """
+    if platform.system() == "Windows" or not HAS_CUPS:
+        return False
+    
+    try:
+        conn = cups.Connection()
+        printers = conn.getPrinters()
+        if not printers:
+            return False
+        
+        # Check if any printer is not stopped (state 5 is stopped)
+        for p_name in printers:
+            state = printers[p_name].get('printer-state')
+            if state and state != 5:
+                return True
+        return False
+    except Exception:
+        return False
         
 def print_file(file_path: str) -> tuple[bool, str]:
     """

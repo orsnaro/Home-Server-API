@@ -1,38 +1,243 @@
 {% extends 'base.html' %}
-{% block title %}Server Status{% endblock title %}
+
+{% block title %}Server Health & Status{% endblock title %}
+
 {% block content %}
+<style>
+    .stats-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .stat-card {
+        flex: 1 1 220px;
+        max-width: 300px;
+        background: var(--main-card-bg);
+        border-radius: 18px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.4rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .stat-sub {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.3rem;
+    }
+
+    .info-section {
+        margin-top: 3rem;
+        padding: 1.5rem;
+        background: rgba(106, 27, 154, 0.05);
+        border-radius: 18px;
+        border: 1px solid rgba(106, 27, 154, 0.1);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        text-align: left;
+    }
+
+    .info-item {
+        font-size: 0.95rem;
+    }
+
+    .info-item b {
+        color: var(--accent2);
+    }
+
+    .progress-mini {
+        height: 6px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 3px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar-mini {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 3px;
+    }
+</style>
+
 <div class="center">
-  <h2 style="color:#6a1b9a;font-size:2rem;">Server Status</h2>
-  <button onclick="window.location.reload()" style="margin-top:0.2em;padding:0.7em 2em;background:#6a1b9a;color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(106,27,154,0.10);transition:background 0.2s;">🔄 Update</button>
-  <div style="display:flex;flex-wrap:wrap;gap:2em;justify-content:center;margin:2em 0;">
-    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
-      <div style="font-size:2.2em;">🖥️</div>
-      <div style="color:#222222;font-size:1.1em;">CPU Usage</div>
-      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ stats.cpu_percent }}%</div>
-    </div>
-    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
-      <div style="font-size:2.2em;">💾</div>
-      <div style="color:#222222;font-size:1.1em;">RAM Usage</div>
-      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ stats.memory.percent }}%</div>
-      <div style="font-size:0.95em;color:#555;">({{ (stats.memory.used // (1024*1024)) }}MB / {{ (stats.memory.total // (1024*1024)) }}MB)</div>
-    </div>
-    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
-      <div style="font-size:2.2em;">⏱️</div>
-      <div style="color:#222222;font-size:1.1em;">Uptime</div>
-      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ (stats.uptime // 3600) }}h {{ ((stats.uptime // 60) % 60) }}m</div>
-    </div>
-    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
-      <div style="font-size:2.2em;">👤</div>
-      <div style="color:#222222;font-size:1.1em;">Users</div>
-      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">{{ stats.users|length }}</div>
-    </div>
-    {% if stats.loadavg %}
-    <div style="background:#ede7f6;padding:1.5em 2em;border-radius:12px;box-shadow:0 2px 12px rgba(106,27,154,0.10);min-width:180px;">
-      <div style="font-size:2.2em;">📊</div>
-      <div style="color:#222222;font-size:1.1em;">Load Avg</div>
-      <div style="font-weight:600;font-size:1.3em;color:#4527a0;">1min🕛: {{ stats.loadavg[0] }}, 5min🕛{{ stats.loadavg[1] }}, 15min🕛:{{ stats.loadavg[2] }}</div>
-    </div>
-    {% endif %}
-  </div>
+    <h1 class="main-title">Server Health</h1>
+    <p style="color: #666;">Comprehensive system monitoring for {{ stats.os_info.node }}</p>
+    <button onclick="window.location.reload()"
+        style="margin-top:0.5rem;padding:0.6rem 2rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(106,27,154,0.15);">
+        REFRESH DATA
+    </button>
 </div>
-{% endblock content %} 
+
+<div class="stats-container">
+    <!-- CPU -->
+    <div class="stat-card">
+        <div class="stat-icon">🖥️</div>
+        <div class="stat-label">CPU Usage</div>
+        <div class="stat-value">{{ stats.cpu_percent }}%</div>
+        <div class="stat-sub">{{ stats.cpu_count }} Cores Active</div>
+        <div class="progress-mini">
+            <div class="progress-bar-mini" style="width: {{ stats.cpu_percent }}%"></div>
+        </div>
+    </div>
+
+    <!-- RAM -->
+    <div class="stat-card">
+        <div class="stat-icon">💾</div>
+        <div class="stat-label">Memory</div>
+        <div class="stat-value">{{ stats.memory.percent }}%</div>
+        <div class="stat-sub">{{ (stats.memory.used // (1024**3)) }}GB / {{ (stats.memory.total // (1024**3)) }}GB</div>
+        <div class="progress-mini">
+            <div class="progress-bar-mini" style="width: {{ stats.memory.percent }}%"></div>
+        </div>
+    </div>
+
+    <!-- Disk -->
+    <div class="stat-card">
+        <div class="stat-icon">💽</div>
+        <div class="stat-label">Storage (/)</div>
+        <div class="stat-value">{{ stats.disk.percent }}%</div>
+        <div class="stat-sub">{{ (stats.disk.used // (1024**3)) }}GB / {{ (stats.disk.total // (1024**3)) }}GB</div>
+        <div class="progress-mini">
+            <div class="progress-bar-mini" style="width: {{ stats.disk.percent }}%"></div>
+        </div>
+    </div>
+
+    <!-- Network -->
+    <div class="stat-card">
+        <div class="stat-icon">🌐</div>
+        <div class="stat-label">Network I/O</div>
+        <div class="stat-value" id="net-active">Active</div>
+        <div class="stat-sub" id="net-speeds">
+            ⬆️ <span id="sent-speed">{{ (stats.net_io.sent_speed // 1024) }}</span> KB/s | 
+            ⬇️ <span id="recv-speed">{{ (stats.net_io.recv_speed // 1024) }}</span> KB/s
+        </div>
+        <div class="stat-sub" style="font-size: 0.7rem;" id="net-totals">
+            Total: ⬆️ {{ (stats.net_io.sent // (1024**2)) }}MB | ⬇️ {{ (stats.net_io.recv // (1024**2)) }}MB
+        </div>
+    </div>
+
+    <!-- Power Draw -->
+    <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-label">Power Draw</div>
+        <div class="stat-value" id="power-draw">{{ stats.power_draw if stats.power_draw else 'N/A' }}{{ ' W' if stats.power_draw and stats.power_draw != 'N/A' else '' }}</div>
+        <div class="stat-sub">Real-time consumption</div>
+    </div>
+
+    <!-- Uptime -->
+    <div class="stat-card">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-label">System Uptime</div>
+        <div class="stat-value" id="uptime-val">{{ (stats.uptime // 86400) }}d {{ (stats.uptime // 3600 % 24) }}h</div>
+        <div class="stat-sub" id="uptime-min">{{ (stats.uptime // 60 % 60) }}m elapsed</div>
+    </div>
+
+    <!-- Processes -->
+    <div class="stat-card">
+        <div class="stat-icon">⚙️</div>
+        <div class="stat-label">Processes</div>
+        <div class="stat-value" id="process-count">{{ stats.process_count }}</div>
+        <div class="stat-sub">{{ stats.users|length }} active users</div>
+    </div>
+</div>
+
+<div class="info-section">
+    <h3 style="margin-top:0; color: var(--accent); border-bottom: 1px solid rgba(106,27,154,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+        System Information
+    </h3>
+    <div class="info-grid">
+        <div class="info-item"><b>OS:</b> {{ stats.os_info.system }} {{ stats.os_info.release }}</div>
+        <div class="info-item"><b>Hostname:</b> {{ stats.os_info.node }}</div>
+        <div class="info-item"><b>Arch:</b> {{ stats.os_info.machine }}</div>
+        {% if stats.loadavg %}
+        <div class="info-item"><b>Load Avg:</b> {{ stats.loadavg[0] }}, {{ stats.loadavg[1] }}, {{ stats.loadavg[2] }}</div>
+        {% endif %}
+        <div class="info-item"><b>Kernel Version:</b> {{ stats.os_info.version.split(' ')[0] }}</div>
+    </div>
+</div>
+
+<script>
+    async function updateStats() {
+        try {
+            const response = await fetch("{{ url_for('pages.api_server_stats') }}");
+            const data = await response.json();
+
+            // Update CPU
+            document.querySelector('.stat-card:nth-child(1) .stat-value').innerText = data.cpu_percent + '%';
+            document.querySelector('.stat-card:nth-child(1) .progress-bar-mini').style.width = data.cpu_percent + '%';
+
+            // Update RAM
+            document.querySelector('.stat-card:nth-child(2) .stat-value').innerText = data.memory.percent + '%';
+            document.querySelector('.stat-card:nth-child(2) .stat-sub').innerText = 
+                Math.floor(data.memory.used / (1024**3)) + 'GB / ' + Math.floor(data.memory.total / (1024**3)) + 'GB';
+            document.querySelector('.stat-card:nth-child(2) .progress-bar-mini').style.width = data.memory.percent + '%';
+
+            // Update Disk
+            document.querySelector('.stat-card:nth-child(3) .stat-value').innerText = data.disk.percent + '%';
+            document.querySelector('.stat-card:nth-child(3) .stat-sub').innerText = 
+                Math.floor(data.disk.used / (1024**3)) + 'GB / ' + Math.floor(data.disk.total / (1024**3)) + 'GB';
+            document.querySelector('.stat-card:nth-child(3) .progress-bar-mini').style.width = data.disk.percent + '%';
+
+            // Update Network
+            document.getElementById('sent-speed').innerText = Math.floor(data.net_io.sent_speed / 1024);
+            document.getElementById('recv-speed').innerText = Math.floor(data.net_io.recv_speed / 1024);
+            document.getElementById('net-totals').innerText = 
+                'Total: ⬆️ ' + Math.floor(data.net_io.sent / (1024**2)) + 'MB | ⬇️ ' + Math.floor(data.net_io.recv / (1024**2)) + 'MB';
+
+            // Update Power
+            const powerVal = data.power_draw && data.power_draw !== 'N/A' ? data.power_draw + ' W' : 'N/A';
+            document.getElementById('power-draw').innerText = powerVal;
+
+            // Update Uptime
+            const days = Math.floor(data.uptime / 86400);
+            const hours = Math.floor((data.uptime % 86400) / 3600);
+            const minutes = Math.floor((data.uptime % 3600) / 60);
+            document.getElementById('uptime-val').innerText = days + 'd ' + hours + 'h';
+            document.getElementById('uptime-min').innerText = minutes + 'm elapsed';
+
+            // Update Processes
+            document.getElementById('process-count').innerText = data.process_count;
+
+        } catch (error) {
+            console.error("Error fetching stats:", error);
+        }
+    }
+
+    // Update every 5 seconds
+    setInterval(updateStats, 5000);
+</script>
+
+{% endblock content %}

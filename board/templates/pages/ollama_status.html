@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Ollama Models{% endblock title %}
+
+{% block content %}
+<style>
+    .models-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    .model-card {
+        background: var(--main-card-bg);
+        border-radius: 18px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: left;
+    }
+    .model-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+    }
+    .model-meta {
+        font-size: 0.9rem;
+        color: #888;
+    }
+</style>
+
+<div class="center">
+    <h1 class="main-title">🦙 Ollama Models</h1>
+    <p style="color: #666;">Locally hosted Large Language Models</p>
+</div>
+
+<div class="models-container">
+    {% if models %}
+        {% for model in models %}
+        <div class="model-card">
+            <div class="model-name">{{ model.name }}</div>
+            <div class="model-meta">
+                <b>Size:</b> {{ model.size }}<br>
+                <b>ID:</b> {{ model.id[:12] }}...<br>
+                <b>Modified:</b> {{ model.modified }}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">No models found or Ollama service is unavailable.</p>
+    {% endif %}
+</div>
+
+<div class="center" style="margin-top: 2rem;">
+    <a href="{{ url_for('pages.services') }}" class="service-btn" style="display: inline-block; padding: 0.8rem 2rem;">Back to Services</a>
+</div>
+{% endblock content %}
