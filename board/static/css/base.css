@@ -48,40 +48,108 @@
     }
 
     nav {
-      margin: 0 0 1rem 0;
-      padding: 0.5rem 2rem;
+      position: fixed;
+      left: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 2.5rem 1.2rem;
       background: var(--nav-bg);
       display: flex;
-      gap: 1.5rem;
-      border-radius: 12px;
+      flex-direction: column;
+      gap: 2rem;
+      border-radius: 30px;
       backdrop-filter: blur(var(--glass-blur));
       -webkit-backdrop-filter: blur(var(--glass-blur));
-      box-shadow: 0 2px 8px rgba(106, 27, 154, 0.04);
-      transition: background 0.3s;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 100;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      min-width: 140px;
     }
 
     nav a {
       color: var(--accent);
       text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      padding: 1.2rem;
+      border-radius: 18px;
+      text-align: center;
+      font-size: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 0.5px;
     }
 
     nav a:hover {
+      background: rgba(106, 27, 154, 0.15);
       color: var(--accent2);
-      text-decoration: underline;
+      transform: scale(1.1) translateX(5px);
+      box-shadow: 0 5px 15px rgba(106, 27, 154, 0.1);
     }
 
     main {
-      max-width: 700px;
-      margin: 2rem auto;
+      max-width: 850px;
+      margin: 2rem auto 2rem 16rem; /* Default margin for large screens */
       background: var(--main-card-bg);
-      border-radius: 18px;
-      box-shadow: 0 2px 12px rgba(106, 27, 154, 0.07);
-      padding: 2rem;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
       backdrop-filter: blur(var(--glass-blur));
       -webkit-backdrop-filter: blur(var(--glass-blur));
-      transition: background 0.3s;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    /* Responsive adjustments */
+    @media (min-width: 1400px) {
+        main {
+            margin: 2rem auto; /* Center on very large screens */
+        }
+    }
+
+    @media (max-width: 1399px) {
+        main {
+            margin-left: 16rem; /* Fixed left margin to clear big sidebar */
+            margin-right: 2rem;
+        }
+    }
+
+    @media (max-width: 1100px) {
+        nav {
+            left: 0.8rem;
+            min-width: 120px;
+            padding: 2rem 0.8rem;
+        }
+        nav a {
+            font-size: 0.9rem;
+            padding: 0.8rem;
+        }
+        main {
+            margin-left: 12rem;
+        }
+    }
+
+    @media (max-width: 950px) {
+        nav {
+            position: relative;
+            top: 0;
+            left: 0;
+            transform: none;
+            flex-direction: row;
+            justify-content: center;
+            margin: 1.5rem auto;
+            width: fit-content;
+            padding: 1rem 2rem;
+            min-width: unset;
+        }
+        main {
+            margin: 1rem auto;
+            width: 90%;
+            padding: 1.5rem;
+        }
     }
 
     h1,

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Docker Status{% endblock title %}
+
+{% block content %}
+<style>
+    .docker-container {
+        background: var(--main-card-bg);
+        border-radius: 18px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 1rem;
+    }
+    .container-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .container-item:last-child {
+        border-bottom: none;
+    }
+    .status-up { color: #4caf50; font-weight: bold; }
+    .status-down { color: #f44336; font-weight: bold; }
+</style>
+
+<div class="center">
+    <h1 class="main-title">🐳 Docker Containers</h1>
+    <p style="color: #666;">Monitoring local docker instances</p>
+</div>
+
+<div class="docker-container">
+    {% if containers %}
+        {% for container in containers %}
+        <div class="container-item">
+            <div>
+                <h3 style="margin: 0; font-size: 1.1rem; color: var(--accent);">{{ container.name }}</h3>
+                <small style="color: #888;">Image: {{ container.image }} | ID: {{ container.id }}</small>
+            </div>
+            <div class="{% if 'Up' in container.status %}status-up{% else %}status-down{% endif %}">
+                {{ container.status }}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: #666; padding: 2rem;">No containers found or Docker service is unavailable.</p>
+    {% endif %}
+</div>
+
+<div class="center" style="margin-top: 2rem;">
+    <a href="{{ url_for('pages.services') }}" class="service-btn" style="display: inline-block; padding: 0.8rem 2rem;">Back to Services</a>
+</div>
+{% endblock content %}
