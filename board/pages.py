@@ -1,13 +1,14 @@
 # =============================================
 # File: pages.py
-# Version: 1.0.3-Beta
+# Version: 1.0.4
 # Author: Omar Rashad
 # Python Version: 3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]
-# Last Update: 2026-05-07
+# Last Update: 2026-05-08
 # =============================================
 import os
 import subprocess
 import platform
+import glob
 from flask import Blueprint, render_template, redirect, abort, jsonify, request, flash, url_for
 from werkzeug.security import check_password_hash
 import psutil
@@ -23,6 +24,118 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 bp = Blueprint("pages", __name__)
+
+def run_status_command(command, timeout=5):
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, timeout=timeout)
+        return {
+            "ok": result.returncode == 0,
+            "stdout": (result.stdout or "").strip(),
+            "stderr": (result.stderr or "").strip(),
+            "returncode": result.returncode
+        }
+    except FileNotFoundError:
+        return {
+            "ok": False,
+            "stdout": "",
+            "stderr": f"Command not found: {command[0]}",
+            "returncode": None
+        }
+    except Exception as exc:
+        return {
+            "ok": False,
+            "stdout": "",
+            "stderr": str(exc),
+            "returncode": None
+        }
+
+
+def find_matching_processes(target):
+    target_lower = target.casefold()
+    matches = []
+
+    for proc in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
+        try:
+            name = proc.info.get("name") or ""
+            exe = proc.info.get("exe") or ""
+            cmdline_parts = proc.info.get("cmdline") or []
+            cmdline = " ".join(cmdline_parts)
+
+            haystacks = [
+                name.casefold(),
+                os.path.basename(exe).casefold(),
+                cmdline.casefold()
+            ]
+            if any(target_lower in value for value in haystacks if value):
+                matches.append({
+                    "pid": proc.info["pid"],
+                    "name": name or "Unknown",
+                    "exe": exe or "Unknown",
+                    "cmdline": cmdline or "N/A"
+                })
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+
+    return matches
+
+
+def get_service_process_targets(service):
+    if "proc_targets" in service:
+        return service["proc_targets"]
+    if "proc_name" in service:
+        return [service["proc_name"]]
+    return []
+
+
+def get_service_unit_candidates(service):
+    candidates = []
+    for candidate in service.get("unit_names", []):
+        if candidate and candidate not in candidates:
+            candidates.append(candidate)
+    for candidate in [service.get("id"), service.get("proc_name")]:
+        if candidate and candidate not in candidates:
+            candidates.append(candidate)
+    return candidates
+
+
+def is_any_systemd_unit_active(unit_candidates):
+    if platform.system() == "Windows":
+        return False
+
+    for unit in unit_candidates:
+        result = run_status_command(["systemctl", "is-active", unit], timeout=3)
+        if result["ok"] and result["stdout"] == "active":
+            return True
+    return False
+
+
+def get_docker_engine_status() -> bool:
+    """
+    Docker is considered online when the daemon responds, even with zero containers.
+    """
+    return run_status_command(["docker", "info"], timeout=5)["ok"]
+
+
+def get_docker_engine_details():
+    result = run_status_command(["docker", "info"], timeout=5)
+    return {
+        "is_available": result["ok"],
+        "message": result["stderr"] or result["stdout"] or "Docker engine is available."
+    }
+
+def get_ollama_status() -> bool:
+    """
+    Ollama is considered online when `ollama list` succeeds.
+    """
+    return run_status_command(["ollama", "list"], timeout=5)["ok"]
+
+
+def get_ollama_details():
+    result = run_status_command(["ollama", "list"], timeout=5)
+    return {
+        "is_available": result["ok"],
+        "message": result["stderr"] or result["stdout"] or "Ollama is available."
+    }
 
 # --- Services Registry ---
 SERVICES = [
@@ -62,8 +175,10 @@ SERVICES = [
         "description": "OpenClaw Agent",
         "type": "info",
         "proc_name": "openclaw",
+        "proc_targets": ["openclaw", "openclaw gateway", "openclaw-gateway"],
+        "unit_names": ["openclaw-gateway", "openclaw"],
         "custom_info": True, # Flag to show a 'View Status' button
-        "is_protected": True
+        "is_protected": False
     },
     {
         "id": "docker",
@@ -72,6 +187,7 @@ SERVICES = [
         "description": "Running docker containers and status.",
         "link": "pages.docker_status",
         "type": "page",
+        "custom_check": get_docker_engine_status,
         "is_protected": False
     },
     {
@@ -81,6 +197,7 @@ SERVICES = [
         "description": "Local LLMs running via Ollama.",
         "link": "pages.ollama_status",
         "type": "page",
+        "custom_check": get_ollama_status,
         "is_protected": False
     },
     {
@@ -97,90 +214,176 @@ SERVICES = [
 # --- Global state for network speed calculation ---
 last_net_io = None
 last_net_time = None
+last_power_sample = None
 
 def get_docker_containers():
-    # If on Windows, we could try to check if docker is running first
-    # But usually docker is used in Linux environments for these types of servers
-    try:
-        # Get container info: ID, Name, Status, Image
-        result = subprocess.run(
-            ["docker", "ps", "-a", "--format", "{{.ID}}|{{.Names}}|{{.Status}}|{{.Image}}"],
-            capture_output=True, text=True, timeout=5
-        )
-        if result.returncode != 0:
-            return []
-        
-        containers = []
-        for line in result.stdout.strip().split("\n"):
-            if not line: continue
-            parts = line.split("|")
-            if len(parts) == 4:
-                containers.append({
-                    "id": parts[0],
-                    "name": parts[1],
-                    "status": parts[2],
-                    "image": parts[3]
-                })
-        return containers
-    except Exception:
-        return []
+    result = run_status_command(
+        ["docker", "ps", "-a", "--format", "{{.ID}}|{{.Names}}|{{.Status}}|{{.Image}}"],
+        timeout=5
+    )
+    if not result["ok"]:
+        return [], result["stderr"] or result["stdout"] or "Docker is unavailable."
+
+    containers = []
+    for line in result["stdout"].splitlines():
+        parts = line.split("|")
+        if len(parts) == 4:
+            containers.append({
+                "id": parts[0],
+                "name": parts[1],
+                "status": parts[2],
+                "image": parts[3]
+            })
+    return containers, None
 
 def get_ollama_models():
+    result = run_status_command(["ollama", "list"], timeout=5)
+    if not result["ok"]:
+        return [], result["stderr"] or result["stdout"] or "Ollama is unavailable."
+
+    models = []
+    lines = result["stdout"].splitlines()
+    if len(lines) > 1:
+        for line in lines[1:]:
+            parts = line.split()
+            if len(parts) >= 1:
+                models.append({
+                    "name": parts[0],
+                    "id": parts[1] if len(parts) > 1 else "N/A",
+                    "size": parts[2] if len(parts) > 2 else "N/A",
+                    "modified": " ".join(parts[3:]) if len(parts) > 3 else "N/A"
+                })
+    return models, None
+
+def _read_int_file(path):
+    with open(path, "r") as f:
+        return int(f.read().strip())
+
+
+def _read_linux_power_supply_watts():
     try:
-        result = subprocess.run(["ollama", "list"], capture_output=True, text=True, timeout=5)
-        if result.returncode != 0:
-            return []
-        
-        models = []
-        lines = result.stdout.strip().split("\n")
-        if len(lines) > 1: # Skip header
-            for line in lines[1:]:
-                parts = line.split()
-                if len(parts) >= 1:
-                    models.append({
-                        "name": parts[0],
-                        "id": parts[1] if len(parts) > 1 else "N/A",
-                        "size": parts[2] if len(parts) > 2 else "N/A",
-                        "modified": " ".join(parts[3:]) if len(parts) > 3 else "N/A"
-                    })
-        return models
+        for supply_path in glob.glob("/sys/class/power_supply/*"):
+            power_now_path = os.path.join(supply_path, "power_now")
+            if os.path.exists(power_now_path):
+                return round(_read_int_file(power_now_path) / 1_000_000, 2)
+
+            current_now_path = os.path.join(supply_path, "current_now")
+            voltage_now_path = os.path.join(supply_path, "voltage_now")
+            if os.path.exists(current_now_path) and os.path.exists(voltage_now_path):
+                current_ua = _read_int_file(current_now_path)
+                voltage_uv = _read_int_file(voltage_now_path)
+                return round((current_ua * voltage_uv) / 1_000_000_000_000, 2)
     except Exception:
-        return []
+        pass
+
+    return None
+
+
+def _read_linux_hwmon_power_watts():
+    total_watts = 0.0
+    found = False
+
+    try:
+        for hwmon_path in glob.glob("/sys/class/hwmon/hwmon*"):
+            for power_path in glob.glob(os.path.join(hwmon_path, "power*_input")):
+                microwatts = _read_int_file(power_path)
+                total_watts += microwatts / 1_000_000
+                found = True
+    except Exception:
+        pass
+
+    if found:
+        return round(total_watts, 2)
+    return None
+
+
+def _read_linux_rapl_power_watts():
+    global last_power_sample
+
+    energy_paths = []
+    try:
+        for rapl_path in glob.glob("/sys/class/powercap/intel-rapl:*"):
+            if os.path.basename(rapl_path).count(":") == 1:
+                energy_path = os.path.join(rapl_path, "energy_uj")
+                max_energy_path = os.path.join(rapl_path, "max_energy_range_uj")
+                if os.path.exists(energy_path):
+                    energy_paths.append((energy_path, max_energy_path))
+    except Exception:
+        return None
+
+    if not energy_paths:
+        return None
+
+    now = time.time()
+    current_energies = {}
+
+    try:
+        for energy_path, max_energy_path in energy_paths:
+            energy = _read_int_file(energy_path)
+            max_energy = _read_int_file(max_energy_path) if os.path.exists(max_energy_path) else None
+            current_energies[energy_path] = {"energy": energy, "max_energy": max_energy}
+    except Exception:
+        return None
+
+    if not last_power_sample:
+        last_power_sample = {"time": now, "energies": current_energies}
+        return None
+
+    elapsed = now - last_power_sample["time"]
+    if elapsed <= 0:
+        last_power_sample = {"time": now, "energies": current_energies}
+        return None
+
+    total_delta = 0
+    for energy_path, sample in current_energies.items():
+        previous = last_power_sample["energies"].get(energy_path)
+        if previous is None:
+            continue
+
+        delta = sample["energy"] - previous["energy"]
+        if delta < 0 and sample["max_energy"]:
+            delta = (sample["max_energy"] - previous["energy"]) + sample["energy"]
+
+        if delta > 0:
+            total_delta += delta
+
+    last_power_sample = {"time": now, "energies": current_energies}
+    if total_delta <= 0:
+        return None
+
+    return round((total_delta / 1_000_000) / elapsed, 2)
+
 
 def get_power_draw():
-    # Attempt to read power draw from /sys/class/power_supply or similar (Linux)
-    if platform.system() != "Windows":
-        try:
-            # Check for battery power (e.g. laptop server)
-            for ps in os.listdir("/sys/class/power_supply/"):
-                path = f"/sys/class/power_supply/{ps}/power_now"
-                if os.path.exists(path):
-                    with open(path, "r") as f:
-                        # value is usually in microwatts
-                        microwatts = int(f.read().strip())
-                        return round(microwatts / 1_000_000, 2)
-        except Exception:
-            pass
-        
-        # Alternative: check for 'upower' command
-        try:
-            result = subprocess.run(["upower", "-i", "/org/freedesktop/UPower/devices/battery_BAT0"], capture_output=True, text=True, timeout=2)
-            if result.returncode == 0:
-                for line in result.stdout.split("\n"):
-                    if "energy-rate:" in line:
-                        rate_str = line.split(":")[1].strip().split(" ")[0]
-                        return round(float(rate_str), 2)
-        except Exception:
-            pass
-    else:
-        # Windows: try to get battery info which sometimes includes power rate
-        try:
-            battery = psutil.sensors_battery()
-            if battery:
-                # psutil doesn't directly give Watts, but we can indicate if it's plugged in
-                return "Plugged In" if battery.power_plugged else f"{battery.percent}%"
-        except Exception:
-            pass
+    if platform.system() == "Windows":
+        return "N/A"
+
+    direct_power = _read_linux_power_supply_watts()
+    if direct_power is not None:
+        return f"{direct_power:.2f} W"
+
+    hwmon_power = _read_linux_hwmon_power_watts()
+    if hwmon_power is not None:
+        return f"{hwmon_power:.2f} W"
+
+    rapl_power = _read_linux_rapl_power_watts()
+    if rapl_power is not None:
+        return f"{rapl_power:.2f} W"
+
+    try:
+        result = subprocess.run(
+            ["upower", "-i", "/org/freedesktop/UPower/devices/battery_BAT0"],
+            capture_output=True,
+            text=True,
+            timeout=2
+        )
+        if result.returncode == 0:
+            for line in result.stdout.split("\n"):
+                if "energy-rate:" in line:
+                    rate_str = line.split(":")[1].strip().split(" ")[0]
+                    return f"{float(rate_str):.2f} W"
+    except Exception:
+        pass
 
     return "N/A"
 
@@ -226,14 +429,13 @@ def get_service_status(service):
     if "custom_check" in service and callable(service["custom_check"]):
         return service["custom_check"]()
 
-    # Case 2: Process name check
-    if "proc_name" in service:
-        for proc in psutil.process_iter(['name']):
-            try:
-                if service["proc_name"] in proc.info['name']:
-                    return True
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
+    # Case 2: Process name and systemd unit checks
+    process_targets = get_service_process_targets(service)
+    if process_targets:
+        if any(find_matching_processes(target) for target in process_targets):
+            return True
+        if is_any_systemd_unit_active(get_service_unit_candidates(service)):
+            return True
     
     # Default (e.g. Server Status is always "Live" if the web server is up)
     if service["id"] == "server_stats":
@@ -302,18 +504,57 @@ def service_info(service_id):
     if platform.system() == "Windows":
         return jsonify({"success": True, "info": "Detailed status is not available on Windows."})
 
-    # Execute systemctl status
+    info_sections = []
+
+    process_targets = get_service_process_targets(service)
+    if process_targets:
+        matches = []
+        for target in process_targets:
+            matches.extend(find_matching_processes(target))
+
+        deduped_matches = []
+        seen_pids = set()
+        for match in matches:
+            if match["pid"] in seen_pids:
+                continue
+            seen_pids.add(match["pid"])
+            deduped_matches.append(match)
+
+        if deduped_matches:
+            process_lines = [
+                f"PID {match['pid']} | {match['name']} | {match['cmdline']}"
+                for match in deduped_matches[:5]
+            ]
+            info_sections.append("Matching processes:\n" + "\n".join(process_lines))
+
+    unit_candidates = get_service_unit_candidates(service)
+
     try:
-        # Check if it's a systemd service by looking at the restart command
-        cmd = ["systemctl", "status", service_id]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-        # Even if returncode != 0 (e.g. service stopped), we want the output
-        return jsonify({
-            "success": True, 
-            "info": result.stdout if result.stdout else result.stderr
-        })
+        fallback_output = None
+        for unit in unit_candidates:
+            result = run_status_command(["systemctl", "status", unit, "--no-pager"], timeout=5)
+            output = result["stdout"] or result["stderr"]
+            if result["ok"] and output:
+                info_sections.append(f"systemctl status {unit}:\n{output}")
+                break
+            if output and fallback_output is None:
+                fallback_output = f"systemctl status {unit}:\n{output}"
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+
+    if fallback_output and not any(section.startswith("systemctl status") for section in info_sections):
+        info_sections.append(fallback_output)
+
+    if info_sections:
+        return jsonify({
+            "success": True,
+            "info": "\n\n".join(info_sections)
+        })
+
+    return jsonify({
+        "success": True,
+        "info": "No matching process or systemd unit details were found for this service."
+    })
 
 @bp.route("/about")
 def about():
@@ -376,13 +617,8 @@ def printer():
 @bp.route("/pokeWizy")
 def pokeWizy():
     wizy_proc_name = 'bot_wizy_discord.py'
-    for proc in psutil.process_iter(['name']):
-        try:
-            # Compare process name
-            if proc.info['name'] == wizy_proc_name:
-                return "<a href='https://github.com/orsnaro/Discord-Bot-Ai/tree/production-Home-Server'> <h1 style='color:orange'> Wizy Running🧙‍♂️🟢! </h1> </a>"
-        except psutil.NoSuchProcess:
-            pass
+    if find_matching_processes(wizy_proc_name):
+        return "<a href='https://github.com/orsnaro/Discord-Bot-Ai/tree/production-Home-Server'> <h1 style='color:orange'> Wizy Running🧙‍♂️🟢! </h1> </a>"
     time.sleep(4)        
     abort(404, "Wizy not found running in server🔴🥹! I guess he Is sleeping ... what a lazy old man🧙‍♂️!")
 
@@ -397,15 +633,8 @@ def wizyVersion():
 @bp.route("/wizy-status")
 def wizy_status():
     wizy_proc_name = 'bot_wizy_discord.py'
-    is_running = False
-    for proc in psutil.process_iter(['name']):
-        try:
-            if proc.info['name'] == wizy_proc_name:
-                is_running = True
-                break
-        except psutil.NoSuchProcess:
-            pass
-    return render_template("pages/wizy_status.html", is_running=is_running)
+    matches = find_matching_processes(wizy_proc_name)
+    return render_template("pages/wizy_status.html", is_running=bool(matches), process_count=len(matches))
 
 @bp.route("/api-info")
 def api_info():
@@ -489,10 +718,22 @@ def api_server_stats():
 
 @bp.route("/docker-status")
 def docker_status():
-    containers = get_docker_containers()
-    return render_template("pages/docker_status.html", containers=containers)
+    docker_details = get_docker_engine_details()
+    containers, error_message = get_docker_containers()
+    return render_template(
+        "pages/docker_status.html",
+        containers=containers,
+        docker_available=docker_details["is_available"],
+        status_message=error_message or docker_details["message"]
+    )
 
 @bp.route("/ollama-status")
 def ollama_status():
-    models = get_ollama_models()
-    return render_template("pages/ollama_status.html", models=models)
+    ollama_details = get_ollama_details()
+    models, error_message = get_ollama_models()
+    return render_template(
+        "pages/ollama_status.html",
+        models=models,
+        ollama_available=ollama_details["is_available"],
+        status_message=error_message or ollama_details["message"]
+    )

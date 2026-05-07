@@ -17,6 +17,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 1rem;
         padding: 1rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
@@ -25,11 +26,18 @@
     }
     .status-up { color: #4caf50; font-weight: bold; }
     .status-down { color: #f44336; font-weight: bold; }
+    .status-summary {
+        margin-top: 0.5rem;
+        font-weight: 600;
+    }
 </style>
 
 <div class="center">
-    <h1 class="main-title">🐳 Docker Containers</h1>
+    <h1 class="main-title">Docker Containers</h1>
     <p style="color: #666;">Monitoring local docker instances</p>
+    <p class="status-summary" style="color: {{ '#43b581' if docker_available else '#f04747' }};">
+        {{ 'Docker engine reachable' if docker_available else 'Docker engine unavailable' }}
+    </p>
 </div>
 
 <div class="docker-container">
@@ -45,8 +53,13 @@
             </div>
         </div>
         {% endfor %}
+    {% elif docker_available %}
+        <p style="text-align: center; color: #666; padding: 2rem;">Docker is online, but there are no containers on this host.</p>
     {% else %}
-        <p style="text-align: center; color: #666; padding: 2rem;">No containers found or Docker service is unavailable.</p>
+        <p style="text-align: center; color: #666; padding: 2rem;">Docker is unavailable on this host.</p>
+        {% if status_message %}
+        <pre style="white-space: pre-wrap; color: #888; margin: 0; text-align: left;">{{ status_message }}</pre>
+        {% endif %}
     {% endif %}
 </div>
 

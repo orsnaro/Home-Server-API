@@ -118,7 +118,7 @@
         <div class="stat-icon">💾</div>
         <div class="stat-label">Memory</div>
         <div class="stat-value">{{ stats.memory.percent }}%</div>
-        <div class="stat-sub">{{ (stats.memory.used // (1024**3)) }}GB / {{ (stats.memory.total // (1024**3)) }}GB</div>
+        <div class="stat-sub">{{ '%.2f'|format(stats.memory.used / (1024**3)) }} GB / {{ '%.2f'|format(stats.memory.total / (1024**3)) }} GB</div>
         <div class="progress-mini">
             <div class="progress-bar-mini" style="width: {{ stats.memory.percent }}%"></div>
         </div>
@@ -153,7 +153,7 @@
     <div class="stat-card">
         <div class="stat-icon">⚡</div>
         <div class="stat-label">Power Draw</div>
-        <div class="stat-value" id="power-draw">{{ stats.power_draw if stats.power_draw else 'N/A' }}{{ ' W' if stats.power_draw and stats.power_draw != 'N/A' else '' }}</div>
+        <div class="stat-value" id="power-draw">{{ stats.power_draw if stats.power_draw else 'N/A' }}</div>
         <div class="stat-sub">Real-time consumption</div>
     </div>
 
@@ -201,8 +201,8 @@
 
             // Update RAM
             document.querySelector('.stat-card:nth-child(2) .stat-value').innerText = data.memory.percent + '%';
-            document.querySelector('.stat-card:nth-child(2) .stat-sub').innerText = 
-                Math.floor(data.memory.used / (1024**3)) + 'GB / ' + Math.floor(data.memory.total / (1024**3)) + 'GB';
+            document.querySelector('.stat-card:nth-child(2) .stat-sub').innerText =
+                (data.memory.used / (1024 ** 3)).toFixed(2) + ' GB / ' + (data.memory.total / (1024 ** 3)).toFixed(2) + ' GB';
             document.querySelector('.stat-card:nth-child(2) .progress-bar-mini').style.width = data.memory.percent + '%';
 
             // Update Disk
@@ -218,8 +218,7 @@
                 'Total: ⬆️ ' + Math.floor(data.net_io.sent / (1024**2)) + 'MB | ⬇️ ' + Math.floor(data.net_io.recv / (1024**2)) + 'MB';
 
             // Update Power
-            const powerVal = data.power_draw && data.power_draw !== 'N/A' ? data.power_draw + ' W' : 'N/A';
-            document.getElementById('power-draw').innerText = powerVal;
+            document.getElementById('power-draw').innerText = data.power_draw || 'N/A';
 
             // Update Uptime
             const days = Math.floor(data.uptime / 86400);
