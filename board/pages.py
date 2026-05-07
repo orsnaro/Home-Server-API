@@ -24,6 +24,26 @@ def allowed_file(filename):
 
 bp = Blueprint("pages", __name__)
 
+def get_docker_engine_status() -> bool:
+    """
+    Docker is considered online when the daemon responds, even with zero containers.
+    """
+    try:
+        result = subprocess.run(["docker", "info"], capture_output=True, text=True, timeout=5)
+        return result.returncode == 0
+    except Exception:
+        return False
+
+def get_ollama_status() -> bool:
+    """
+    Ollama is considered online when `ollama list` succeeds.
+    """
+    try:
+        result = subprocess.run(["ollama", "list"], capture_output=True, text=True, timeout=5)
+        return result.returncode == 0
+    except Exception:
+        return False
+
 # --- Services Registry ---
 SERVICES = [
     {
@@ -72,6 +92,7 @@ SERVICES = [
         "description": "Running docker containers and status.",
         "link": "pages.docker_status",
         "type": "page",
+        "custom_check": get_docker_engine_status,
         "is_protected": False
     },
     {
@@ -81,6 +102,7 @@ SERVICES = [
         "description": "Local LLMs running via Ollama.",
         "link": "pages.ollama_status",
         "type": "page",
+        "custom_check": get_ollama_status,
         "is_protected": False
     },
     {
