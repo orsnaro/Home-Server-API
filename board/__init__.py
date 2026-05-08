@@ -6,7 +6,7 @@
 # Last Update: 2026-05-08
 # =============================================
 from flask import Flask
-from board import pages
+from board import media, pages
 import os
 import platform
 from dotenv import load_dotenv
@@ -23,5 +23,6 @@ def create_app():
     
     app = Flask(__name__, static_url_path=static_url_path)
     app.register_blueprint(pages.bp)
+    app.register_blueprint(media.bp)
     app.secret_key = os.environ.get("FLASK_WEB_API_KEY")
     return app
