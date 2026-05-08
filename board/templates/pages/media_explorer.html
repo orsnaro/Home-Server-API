@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Media Explorer{% endblock title %}
+
+{% block body_class %}media-page{% endblock body_class %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/media_explorer.css') }}">
+{% endblock extra_head %}
+
+{% block content %}
+<section class="media-shell">
+  <section class="media-hero">
+    <div>
+      <p class="media-eyebrow">Simple Explorer</p>
+      <h2>Browse server files and play media in the browser.</h2>
+      <p class="media-path"><strong>Root:</strong> {{ root_fs_path }}</p>
+      <p class="media-path"><strong>Current:</strong> {{ current_fs_path }}</p>
+    </div>
+    <a class="media-root-link" href="{{ url_for('media.explorer') }}">Back to root</a>
+  </section>
+
+  <nav class="media-breadcrumbs" aria-label="Folder path">
+    {% for crumb in breadcrumbs %}
+      <a href="{{ url_for('media.explorer', path=crumb.path) }}">{{ crumb.label }}</a>
+    {% endfor %}
+  </nav>
+
+  <section class="media-grid">
+    <section class="media-panel">
+      <div class="media-panel-head">
+        <h3>Folders and Files</h3>
+        <div class="panel-actions">
+          {% if is_unlocked %}
+            {% if parent_path is not none %}
+              <a class="panel-link" href="{{ url_for('media.explorer', path=parent_path) }}">Up one level</a>
+            {% endif %}
+            <button class="panel-btn-lock" id="lockExplorerBtn">
+              <span>🔒</span> Lock
+            </button>
+          {% else %}
+            <a class="panel-link" href="#" id="openUnlockModalBtn">Unlock Explorer</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <ul class="entry-list">
+        {% if not is_unlocked %}
+          <li class="empty-folder">
+            <div class="locked-state">
+              <strong>Explorer is locked.</strong>
+              <span>Enter the explorer passcode to reveal folders and files.</span>
+            </div>
+          </li>
+        {% elif listing_error %}
+          <li class="empty-folder">
+            <div class="locked-state">
+              <strong>Folder access failed.</strong>
+              <span>{{ listing_error }}</span>
+            </div>
+          </li>
+        {% else %}
+          {% for entry in entries %}
+            <li class="entry-card">
+              {% if entry.is_dir %}
+                <a class="entry-folder" href="{{ url_for('media.explorer', path=entry.relative_path) }}">
+                  <span class="entry-name">📁 {{ entry.name }}</span>
+                  <span class="entry-meta">Folder</span>
+                </a>
+                <div class="entry-actions">
+                  <a class="entry-open" href="{{ url_for('media.explorer', path=entry.relative_path) }}">Open</a>
+                </div>
+              {% else %}
+                {% set file_icon = '📄' %}
+                {% if entry.media_kind == 'image' %}
+                  {% set file_icon = '🖼️' %}
+                {% elif entry.media_kind == 'audio' %}
+                  {% set file_icon = '🎵' %}
+                {% elif entry.media_kind == 'video' %}
+                  {% set file_icon = '🎬' %}
+                {% elif entry.media_kind == 'text' %}
+                  {% set file_icon = '📝' %}
+                {% endif %}
+                <button
+                  type="button"
+                  class="entry-button{% if entry.is_selected %} active{% endif %}"
+                  data-entry-file="1"
+                  data-file-url="{{ url_for('media.serve_file', path=entry.relative_path) }}"
+                  data-download-url="{{ url_for('media.serve_file', path=entry.relative_path, download=1) }}"
+                  data-file-name="{{ entry.name }}"
+                  data-file-kind="{{ entry.media_kind }}"
+                  data-file-size="{{ entry.size_label }}"
+                  data-file-path="{{ entry.relative_path }}"
+                  data-selected="{% if entry.is_selected %}1{% else %}0{% endif %}">
+                  <span class="entry-name">{{ file_icon }} {{ entry.name }}</span>
+                  <span class="entry-meta">{{ entry.media_kind|title }} • {{ entry.size_label }} • {{ entry.modified_label }}</span>
+                </button>
+                <div class="entry-actions">
+                  <a class="entry-open" href="{{ url_for('media.serve_file', path=entry.relative_path) }}" target="_blank" rel="noopener">Open</a>
+                </div>
+              {% endif %}
+            </li>
+          {% else %}
+            <li class="empty-folder">This folder is empty.</li>
+          {% endfor %}
+        {% endif %}
+      </ul>
+    </section>
+
+    <section class="media-panel">
+      <div class="media-panel-head">
+        <h3>Preview Player</h3>
+        <a class="panel-link" id="downloadLink" href="#" hidden>Download</a>
+      </div>
+
+      <div class="player-meta" id="playerMeta" hidden>
+        <strong id="playerName"></strong>
+        <span id="playerDetails"></span>
+      </div>
+
+      <div class="player-viewport">
+        {% if not is_unlocked %}
+          <div class="locked-state">
+            <strong>Preview is locked.</strong>
+            <span>Unlock the explorer to stream audio, video, images, and text.</span>
+          </div>
+        {% else %}
+          <div class="player-placeholder" id="playerPlaceholder">
+            Select a file to preview it here.
+          </div>
+          <img class="player-asset" id="imagePreview" alt="Selected preview">
+          <audio class="player-asset" id="audioPreview" controls preload="metadata"></audio>
+          <video class="player-asset" id="videoPreview" controls preload="metadata"></video>
+          <pre id="textPreview"></pre>
+          <div class="player-fallback" id="fileFallback" hidden>
+            Inline preview is not available for this file type.
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  </section>
+</section>
+
+<div class="modal fade" id="explorerUnlockModal" tabindex="-1" aria-labelledby="explorerUnlockModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="explorerUnlockModalLabel">Unlock Media Explorer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Enter the explorer passcode to browse and play files.</p>
+        <input type="password" id="explorerPasscode" class="form-control modern-pass" placeholder="Passcode">
+        <div id="explorerUnlockError" class="text-danger mt-2" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmExplorerUnlockBtn" style="background-color: var(--accent); border: none;">Unlock</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (() => {
+    const isUnlocked = {{ is_unlocked|tojson }};
+    const unlockModalElement = document.getElementById('explorerUnlockModal');
+    document.body.appendChild(unlockModalElement);
+    const unlockModal = new bootstrap.Modal(unlockModalElement, {
+      backdrop: 'static',
+      keyboard: false,
+    });
+
+    const passcodeInput = document.getElementById('explorerPasscode');
+    const unlockError = document.getElementById('explorerUnlockError');
+    const unlockButton = document.getElementById('confirmExplorerUnlockBtn');
+    const reopenButton = document.getElementById('openUnlockModalBtn');
+    const lockButton = document.getElementById('lockExplorerBtn');
+
+    function openUnlockModal() {
+      passcodeInput.value = '';
+      unlockError.style.display = 'none';
+      unlockModal.show();
+      setTimeout(() => passcodeInput.focus(), 200);
+    }
+
+    if (!isUnlocked) {
+      window.addEventListener('load', openUnlockModal);
+    }
+
+    if (reopenButton) {
+      reopenButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        openUnlockModal();
+      });
+    }
+
+    if (lockButton) {
+      lockButton.addEventListener('click', async () => {
+        try {
+          await fetch("{{ url_for('media.lock_explorer') }}", { method: 'POST' });
+          window.location.reload();
+        } catch (error) {
+          console.error('Failed to lock explorer:', error);
+        }
+      });
+    }
+
+    unlockButton.addEventListener('click', async () => {
+      const passcode = passcodeInput.value.trim();
+      if (!passcode) {
+        unlockError.textContent = 'Passcode is required.';
+        unlockError.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch("{{ url_for('media.verify_explorer_passcode') }}", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ passcode }),
+        });
+        const payload = await response.json();
+
+        if (payload.success) {
+          window.location.reload();
+          return;
+        }
+
+        unlockError.textContent = payload.message || 'Invalid passcode.';
+        unlockError.style.display = 'block';
+      } catch (error) {
+        unlockError.textContent = 'Failed to verify passcode.';
+        unlockError.style.display = 'block';
+      }
+    });
+
+    passcodeInput.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        unlockButton.click();
+      }
+    });
+
+    if (!isUnlocked) {
+      return;
+    }
+
+    const fileButtons = Array.from(document.querySelectorAll('[data-entry-file="1"]'));
+    const placeholder = document.getElementById('playerPlaceholder');
+    const imagePreview = document.getElementById('imagePreview');
+    const audioPreview = document.getElementById('audioPreview');
+    const videoPreview = document.getElementById('videoPreview');
+    const textPreview = document.getElementById('textPreview');
+    const fileFallback = document.getElementById('fileFallback');
+    const playerMeta = document.getElementById('playerMeta');
+    const playerName = document.getElementById('playerName');
+    const playerDetails = document.getElementById('playerDetails');
+    const downloadLink = document.getElementById('downloadLink');
+
+    function resetPlayer() {
+      placeholder.hidden = false;
+      playerMeta.hidden = true;
+      fileFallback.hidden = true;
+
+      [imagePreview, audioPreview, videoPreview, textPreview].forEach((element) => {
+        element.style.display = 'none';
+      });
+
+      imagePreview.removeAttribute('src');
+      audioPreview.pause();
+      audioPreview.removeAttribute('src');
+      videoPreview.pause();
+      videoPreview.removeAttribute('src');
+      textPreview.textContent = '';
+      downloadLink.hidden = true;
+    }
+
+    async function previewFile(button) {
+      fileButtons.forEach((item) => item.classList.remove('active'));
+      button.classList.add('active');
+
+      const fileUrl = button.dataset.fileUrl;
+      const downloadUrl = button.dataset.downloadUrl;
+      const fileKind = button.dataset.fileKind;
+      const fileName = button.dataset.fileName;
+      const fileSize = button.dataset.fileSize;
+      const filePath = button.dataset.filePath;
+
+      resetPlayer();
+      placeholder.hidden = true;
+      playerMeta.hidden = false;
+      playerName.textContent = fileName;
+      playerDetails.textContent = `${fileKind} • ${fileSize}`;
+      downloadLink.href = downloadUrl;
+      downloadLink.hidden = false;
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('file', filePath);
+      window.history.replaceState({}, '', url);
+
+      if (fileKind === 'image') {
+        imagePreview.src = fileUrl;
+        imagePreview.style.display = 'block';
+        return;
+      }
+
+      if (fileKind === 'audio') {
+        audioPreview.src = fileUrl;
+        audioPreview.style.display = 'block';
+        audioPreview.load();
+        return;
+      }
+
+      if (fileKind === 'video') {
+        videoPreview.src = fileUrl;
+        videoPreview.style.display = 'block';
+        videoPreview.load();
+        return;
+      }
+
+      if (fileKind === 'text') {
+        try {
+          const response = await fetch(fileUrl);
+          textPreview.textContent = await response.text();
+          textPreview.style.display = 'block';
+        } catch (error) {
+          fileFallback.hidden = false;
+        }
+        return;
+      }
+
+      fileFallback.hidden = false;
+    }
+
+    resetPlayer();
+
+    fileButtons.forEach((button) => {
+      button.addEventListener('click', () => previewFile(button));
+    });
+
+    const initialSelection = fileButtons.find((button) => button.dataset.selected === '1');
+    if (initialSelection) {
+      previewFile(initialSelection);
+    }
+  })();
+</script>
+{% endblock content %}
